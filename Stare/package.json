@@ -9,19 +9,24 @@
   "author": "Camila Márquez <camila.marquez@usach.cl>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.0", // Version desactualizada, actual 1.x
     "cheerio": "^1.0.0-rc.2",
     "cheerio-html-to-text": "^0.4.4",
     "cors": "^2.8.5",
-    "d3": "^5.9.1",
+    "d3": "^5.9.1", // actualmente esta en 7.x
     "express": "^4.16.4",
-    "googleapis": "^37.2.0",
+    "googleapis": "^37.2.0", // actualmente vamos en 140+
     "hyphenopoly": "^2.7.0",
-    "json-formatter-js": "^2.2.1",
-    "json-viewer": "^2.2.0",
+    "json-formatter-js": "^2.2.1", // estas dos dependencias hacen lo mismo
+    "json-viewer": "^2.2.0",  // estas dos dependencias ahcen lo mismo
     "languagedetect": "^1.2.0",
-    "npm": "^6.7.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "npm": "^6.7.0", // no es necesario debido a que viene incluido con node
+    "request": "^2.88.0", // deprecado en 2020,  hoy axios basta
+    "request-promise": "^4.2.2" // deprecado en 2020  hoy axios basta
   }
 }
+
+
+// cambios que hacer desde mi experiencia:
+// instalar types: npm install --save-dev typescript ts-node @types/node
+// crear tsconfig.json e instalar de 0 las dependencias para no generar conflictos
