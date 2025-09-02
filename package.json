@@ -1,3 +1,4 @@
+// tiene dependencias parecidas a la subcarpeta stare
 {
   "name": "Stare.js",
   "version": "1.1.0",
@@ -8,32 +9,36 @@
     "client": "parcel ./client/index.html ./client/index.html",
     "//": "al darle mas de una entrada a parcel,se sirven multiples archivos en localhost:1234",
     "server": "nodemon ./server/app.js",
-    "start": "concurrently \"npm run server\" \"npm run client\""
+    "start": "concurrently \"npm run server\" \"npm run client\"" // levanta front y back en paralelo
   },
   "author": "Camila Márquez <camila.marquez@usach.cl>",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^4.1.0",
     "nodemon": "^1.18.9",
-    "parcel-bundler": "^1.11.0"
+    "parcel-bundler": "^1.11.0" // la rama 1 ya esta obsoleta, 2.x es mas estable y mejor soporte para Ts
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.0", // al igual que en el otro package.json, actualmente vamos en 2.x
     "cheerio": "^1.0.0-rc.2",
     "cheerio-html-to-text": "^0.4.4",
     "cors": "^2.8.5",
-    "d3": "^5.9.1",
-    "express": "^4.16.4",
-    "googleapis": "^37.2.0",
+    "d3": "^5.9.1", // actual va en 7.x
+    "express": "^4.16.4", // actualmente vamos en la 4.21
+    "googleapis": "^37.2.0", // actualmente vamos en la 140+
     "hyphenopoly": "^2.7.0",
     "json-formatter-js": "^2.2.1",
     "json-viewer": "^2.2.0",
     "languagedetect": "^1.2.0",
-    "npm": "^6.7.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "npm": "^6.7.0", // dependencia innecesaria
+    "request": "^2.88.0", // axios hace lo mismo en las versiones actuales
+    "request-promise": "^4.2.2" // axios hace lo mismo en las versiones actuales
   },
   "comentarios": {
     "//": "(servidor localhost:1234 de frontend es considerado un servidor ajeno al servidor localhost:3000 del backend)"
   }
 }
+
+// recomendacion es migrar a parcel 2 o a otro sistema de hacer cliente (React seria ideal por el ciclo de vida
+// de los componentes, ademas de ser solamente una libreria y no un framework), con typescript para manejar los
+// componentes y props.
