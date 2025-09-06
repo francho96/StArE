@@ -35,7 +35,7 @@ return (
                 position: 'absolute',
                 top: 0,
                 left: '50%',
-                transform: 'translateX(-62%) translateY(125 %)',
+                transform: 'translateX(-62%) translateY(125%)',
                 
             }}
         >
