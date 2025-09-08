@@ -11,9 +11,35 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import StArE from './components/StArE';
+import Box from '@mui/material/Box';
 
-function App() {
-  const { mode, toggleMode } = useThemeMode();
+interface Props {
+  window?: () => Window;
+}
+
+const drawerWidth = 240;
+
+function App(props: Props) {
+  const { window } = props;
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleDrawerClose = () => {
+    setIsClosing(true);
+    setMobileOpen(false);
+  };
+
+  const handleDrawerTransitionEnd = () => {
+    setIsClosing(false);
+  };
+
+  const handleDrawerToggle = () => {
+    if (!isClosing) {
+      setMobileOpen(!mobileOpen);
+    }
+  };
+
   const theme = useTheme();
   const [open, setOpen] = useState(false);
 
@@ -21,32 +47,81 @@ function App() {
     setOpen(newOpen);
   };
 
+  const container =
+    window !== undefined ? () => window().document.body : undefined;
+
   return (
     <div>
-      <AppBar position="static">
-        <Toolbar
+      <Box display={'flex'}>
+        <Drawer
+          container={container}
+          variant="temporary"
+          open={mobileOpen}
+          onTransitionEnd={handleDrawerTransitionEnd}
+          onClose={handleDrawerClose}
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between'
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+          slotProps={{
+            root: {
+              keepMounted: true, // Better open performance on mobile.
+            },
           }}
         >
-          <IconButton onClick={toggleDrawer(true)} color="inherit">
-            <MenuRoundedIcon />
-          </IconButton>
-          
+          <DrawerList toggleDrawer={toggleDrawer} />
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+            },
+          }}
+          open
+        >
+          <DrawerList toggleDrawer={toggleDrawer} />
+        </Drawer>
+        <AppBar
+          sx={{
+            display: { sm: 'none' },
+            height: 60,
+            backgroundColor: theme.palette.mode === 'dark' ? '#222' : '#fff',
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            ml: { sm: `${drawerWidth}px` },
+          }}
+        >
+          <Toolbar
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}
+          >
+            <IconButton
+              color="inherit"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { sm: 'none' } }}
+            >
+              <MenuRoundedIcon />
+            </IconButton>
+            <Box sx={{ display: { sm: 'none' } }}>
 
-          <IconButton sx={{ ml: 1 }} onClick={toggleMode} color="inherit">
-            {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
-          </IconButton>
-        </Toolbar>
-        <Drawer open={open} onClose={toggleDrawer(false)}>
-            <DrawerList toggleDrawer={toggleDrawer} />
-          </Drawer>
-      </AppBar>
-
-      <main style={{ padding: '1rem' }}>
+            <StArE small />
+            </Box>
+            
+          </Toolbar>
+        </AppBar>
+      </Box>
+      <Box sx={{ padding: '1rem', width: { sm: `calc(100% - ${drawerWidth}px)`  }, height: { sm: 1 },
+            ml: { sm: `${drawerWidth}px` }, mt: { sm: `60px` },}}>
         <Outlet />
-      </main>
+      </Box>
     </div>
   );
 }

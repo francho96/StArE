@@ -14,36 +14,83 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import SearchIcon from '@mui/icons-material/Search';
 import StArE from './StArE';
+import Card from '@mui/material/Card';
+
+import PieChartIcon from '@mui/icons-material/PieChart';
+import BubbleChartIcon from '@mui/icons-material/BubbleChart';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import { useTheme } from '@mui/material/styles';
 
 function StArESearch() {
+
+  const theme = useTheme()
+  const cardSx = {
+    mb: 3,
+    display: 'flex',
+    flexDirection: 'column',
+    width: 1,
+    height: 1,
+    maxHeight: 300,
+    p: 2,
+    borderRadius: '20px',
+    alignItems: 'center',
+    cursor: 'pointer',
+    border: `1px solid ${theme.palette.divider}`,
+    ':hover': {
+      backgroundColor: theme.palette.mode === 'dark' ? '#444' : '#ddd'
+    },
+    transition: 'all 0.2s linear'
+  };
   return (
     <Box
-        sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: 1
-        }}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column-reverse',
+        alignItems: 'center',
+      }}
     >
-      <StArE />
-      <FormControl sx={{ m: 1, width: '600px' }} variant="outlined">
+      <Typography fontSize={12} color={theme.palette.grey[600]}>
+        StArE aún esta en proceso de pruebas
+      </Typography>
+      <FormControl
+        sx={{ m: 1, maxWidth: '600px', width: 1 }}
+        variant="outlined"
+      >
         <OutlinedInput
           id="outlined-adornment-password"
           type={'text'}
-          placeholder='iniciemos una busqueda'
+          placeholder="Iniciemos una busqueda"
           endAdornment={
             <InputAdornment position="end">
-              <IconButton
-
-              
-                edge="end"
-              >
+              <IconButton edge="end">
                 <SearchIcon />
               </IconButton>
             </InputAdornment>
           }
+          sx={{
+            borderRadius: '20px',
+          }}
         />
       </FormControl>
+      <Box
+        display={'flex'}
+        justifyContent={'space-between'}
+        width={1}
+        maxWidth={700}
+        gap={2}
+        height={1}
+      >
+        <Card sx={cardSx}>
+          Burbujas
+          <BubbleChartIcon color='disabled' />
+        </Card>
+        <Card sx={cardSx}>Barras
+          <BarChartIcon color='disabled'/>
+        </Card>
+        <Card sx={cardSx}>Torta
+          <PieChartIcon color='disabled' />
+        </Card>
+      </Box>
     </Box>
   );
 }
