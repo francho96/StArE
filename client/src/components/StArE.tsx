@@ -21,31 +21,7 @@ return (
       }}>
             StArE
         </Typography>
-        <Box
-            sx={{
-                position: 'absolute',
-                background: 'linear-gradient(to right, #ff0000, #0000ff)',
-                top: 0,
-                left: '50%',
-                transform: small ? 'translateX(-60%) translateY(320%)' : 'translateX(-65%) translateY(320%)',
-                height: small ?  '7px' : '14px',
-                width: small ?  '7px' : '14px',
-                borderRadius: '20px'
-            }}
-        />
-        <Box
-            sx={{
-                position: 'absolute',
-                top: 0,
-                left: '50%',
-                transform: small ? 'translateX(-62%) translateY(62%)' : 'translateX(-62%) translateY(125%)',
-                
-            }}
-        >
-
-
-            <RemoveRedEyeIcon sx={{ fontSize: small ? 12 : 25, color: 'black'}} />
-        </Box>
+        
 
 
            
