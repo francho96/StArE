@@ -4,7 +4,7 @@
   "description": "Servidor backend y core para Stare.js",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon ./server/app.js",
+    "server": "nodemon ./server/app.ts",
     "client": "npm run dev --prefix client",
     "build-client": "npm run build --prefix client",
     "start": "concurrently \"npm run server\" \"npm run client\""
@@ -12,8 +12,13 @@
   "author": "Camila Márquez <camila.marquez@usach.cl>",
   "license": "MIT",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.5.2",
     "concurrently": "^9.0.0",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "axios": "^1.7.7",
