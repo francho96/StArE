@@ -1,29 +1,29 @@
 import Typography from '@mui/material/Typography';
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import Input from '@mui/material/Input';
-import FilledInput from '@mui/material/FilledInput';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import SearchIcon from '@mui/icons-material/Search';
-import StArE from './StArE';
 import Card from '@mui/material/Card';
 
 import PieChartIcon from '@mui/icons-material/PieChart';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { useTheme } from '@mui/material/styles';
+import { fetchDocuments } from '../calls/google-fetch';
+import { useState } from 'react';
 
-function StArESearch() {
+type StArESearchProps = {
+  selectedOption: number;
+  setSelectedOption: (e: number) => void;
+  handleSearch: (e: string) => void
+};
 
-  const theme = useTheme()
+function StArESearch({ selectedOption, setSelectedOption, handleSearch }: StArESearchProps) {
+  const [query, setQuery] = useState('');
+  const theme = useTheme();
+
   const cardSx = {
     mb: 3,
     display: 'flex',
@@ -37,10 +37,13 @@ function StArESearch() {
     cursor: 'pointer',
     border: `1px solid ${theme.palette.divider}`,
     ':hover': {
-      backgroundColor: theme.palette.mode === 'dark' ? '#444' : '#ddd'
+      backgroundColor: theme.palette.mode === 'dark' ? '#444' : '#ddd',
     },
-    transition: 'all 0.2s linear'
+    transition: 'all 0.2s linear',
   };
+
+  
+
   return (
     <Box
       sx={{
@@ -60,9 +63,10 @@ function StArESearch() {
           id="outlined-adornment-password"
           type={'text'}
           placeholder="Iniciemos una busqueda"
+          onChange={(e) => setQuery(e.target.value)}
           endAdornment={
             <InputAdornment position="end">
-              <IconButton edge="end">
+              <IconButton edge="end" onClick={() => handleSearch(query)}>
                 <SearchIcon />
               </IconButton>
             </InputAdornment>
@@ -80,15 +84,17 @@ function StArESearch() {
         gap={2}
         height={1}
       >
-        <Card sx={cardSx}>
+        <Card sx={{...cardSx, borderColor: selectedOption == 0 ? 'red' : ''}} onClick={() => setSelectedOption(0)} >
           Burbujas
-          <BubbleChartIcon color='disabled' />
+          <BubbleChartIcon color="disabled" />
         </Card>
-        <Card sx={cardSx}>Barras
-          <BarChartIcon color='disabled'/>
+        <Card sx={cardSx} onClick={() => setSelectedOption(1)}>
+          Barras
+          <BarChartIcon color="disabled" />
         </Card>
-        <Card sx={cardSx}>Torta
-          <PieChartIcon color='disabled' />
+        <Card sx={cardSx} onClick={() => setSelectedOption(2)}>
+          Torta
+          <PieChartIcon color="disabled" />
         </Card>
       </Box>
     </Box>

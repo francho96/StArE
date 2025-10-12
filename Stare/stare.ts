@@ -130,7 +130,7 @@ const get_Metrics = function(...metricsNames: string[]): boolean {
     // Check if Documents or HTMLS are needed.
     metricsNames.forEach((metricName, i) => {
         try {
-            metric[i] = require('./Metrics/' + metricName + '.js') as Metric;
+            metric[i] = require('./Metrics/' + metricName + '.ts') as Metric;
             
             if (metric[i].use_SERP())
                 serp = true;

@@ -15,7 +15,7 @@
     "@fontsource/comfortaa": "^5.2.6",
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "d3": "^7.9.0",
     "install": "^0.13.0",
     "npm": "^11.6.0",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@types/d3": "^7.4.3",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
