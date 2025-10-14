@@ -90,6 +90,7 @@ app.get('/google', function(req: Request, res: Response) {
         stare.prepareSerp('google_serp', result)
             .then(function(result) {
                 console.log("Result is: " + result);
+                stare.get_Metrics(...metrics);
                 const Json: string = stare.get_Json();
                 res.send(Json);
             })
