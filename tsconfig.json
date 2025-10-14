@@ -11,6 +11,6 @@
       "forceConsistentCasingInFileNames": true,
       "resolveJsonModule": true
     },
-    "include": ["server/**/*"],
+    "include": ["server/**/*", "Stare/types"],
     "exclude": ["node_modules", "client", "dist"]
   }
