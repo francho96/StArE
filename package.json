@@ -6,7 +6,7 @@
   "scripts": {
     "server": "nodemon ./server/app.ts",
     "client": "npm run dev --prefix client",
-    "build-client": "npm run build --prefix client",
+    "build-client": "npm run builddev --prefix client",
     "start": "concurrently \"npm run server\" \"npm run client\""
   },
   "author": "Camila Márquez <camila.marquez@usach.cl>",
