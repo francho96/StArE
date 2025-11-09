@@ -11,7 +11,6 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { useTheme } from '@mui/material/styles';
-import { fetchDocuments } from '../calls/google-fetch';
 import { useState } from 'react';
 
 type StArESearchProps = {
@@ -39,6 +38,22 @@ function StArESearch({ selectedOption, setSelectedOption, handleSearch }: StArES
     ':hover': {
       backgroundColor: theme.palette.mode === 'dark' ? '#444' : '#ddd',
     },
+    transition: 'all 0.2s linear',
+  };
+
+  const cardSxDisabled = {
+    mb: 3,
+    display: 'flex',
+    flexDirection: 'column',
+    width: 1,
+    height: 1,
+    maxHeight: 300,
+    p: 2,
+    borderRadius: '20px',
+    alignItems: 'center',
+    backgroundColor: 'disabled',
+    color: 'text.secondary',
+    border: `1px solid ${theme.palette.divider}`,
     transition: 'all 0.2s linear',
   };
 
@@ -88,11 +103,11 @@ function StArESearch({ selectedOption, setSelectedOption, handleSearch }: StArES
           Burbujas
           <BubbleChartIcon color="disabled" />
         </Card>
-        <Card sx={cardSx} onClick={() => setSelectedOption(1)}>
+        <Card sx={cardSxDisabled} onClick={() => setSelectedOption(0)}>
           Barras
           <BarChartIcon color="disabled" />
         </Card>
-        <Card sx={cardSx} onClick={() => setSelectedOption(2)}>
+        <Card sx={cardSxDisabled} onClick={() => setSelectedOption(0)}>
           Torta
           <PieChartIcon color="disabled" />
         </Card>

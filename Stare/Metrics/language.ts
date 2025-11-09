@@ -12,6 +12,7 @@ export async function get_value(
   input: { documents: { snippet: string }[] },
   index: number
 ): Promise<[string, string, number]> {
+  console.log('language')
   const snippet = input.documents[index].snippet;
   const value = lngDetector.detect(snippet, 1)[0][0];
   return [value, "language", index];

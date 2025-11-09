@@ -8,6 +8,7 @@ export async function get_value(
     input: { start: number; items: number },
     index: number
   ): Promise<[number, string, number]> {
+    console.log('ranking')
     const ranking = input.start * input.items + 1;
     return [ranking, "ranking", index];
   }

@@ -1,15 +1,8 @@
 import { promises as fs } from "fs";
 import LanguageDetect from "languagedetect";
-import hyphenopoly from "hyphenopoly";
 
 const lngDetector = new LanguageDetect();
-const silabas = hyphenopoly.config({
-  sync: true,
-  require: ["es", "en-us"],
-  hyphen: "-"
-});
 
-// Fórmulas de legibilidad
 const english = (words: number, syllables: number) =>
   207 - 0.623 * syllables - 1.05 * words;
 const spanish = (words: number, syllables: number) =>
@@ -17,15 +10,47 @@ const spanish = (words: number, syllables: number) =>
 const french = (words: number, syllables: number) =>
   207 - 0.724 * syllables - 0.962 * words;
 
-// Utilidades
 const limpiarString = (str = "") =>
   str.replace(/[.,()\[\]{}\-\@\'\"]/gi, "");
-const separarPalabras = (str = "") => limpiarString(str).split(" ");
-const s = (str = "", lang: "es" | "en-us" = "es") =>
-  silabas.get(lang)(limpiarString(str)).replace(" ", "-").split("-").length;
+
+const separarPalabras = (str = "") =>
+  limpiarString(str).split(/\s+/).filter(Boolean);
+
+/**
+ * Estima sílabas por palabra según el idioma, esto para remplazar el hyphenoly
+ * No es perfecto, pero suficiente para índices de legibilidad.
+ */
+const contarSilabasPalabra = (palabra: string, lang: string): number => {
+  palabra = palabra.toLowerCase().replace(/[^a-záéíóúüñ]/gi, "");
+
+  let vocales =
+    lang === "en-us"
+      ? palabra.match(/[aeiouyáéíóúü]/gi)
+      : palabra.match(/[aeiouáéíóúü]/gi);
+
+  let count = vocales ? vocales.length : 1;
+
+  if (palabra.endsWith("e") && lang === "en-us" && count > 1) count--;
+  return Math.max(1, count);
+};
+
+/**
+ * Cuenta sílabas totales de un texto...........
+ */
+const contarSilabas = (texto: string, lang: "es" | "en-us" = "es"): number => {
+  const palabras = separarPalabras(texto);
+  return palabras.reduce(
+    (acc, palabra) => acc + contarSilabasPalabra(palabra, lang),
+    0
+  );
+};
+
+/**
+ * Estima promedio de palabras......
+ */
 const p = (str = "") => {
   const nPalabras = separarPalabras(str).length * 1.0;
-  const nFrases = str.split(".").length * 1.0;
+  const nFrases = Math.max(1, str.split(/[.!?]/).length * 1.0);
   return nPalabras / nFrases;
 };
 
@@ -45,13 +70,13 @@ export async function get_value(
   let value: number;
   switch (idiom) {
     case "english":
-      value = english(p(data), s(data, "en-us"));
+      value = english(p(data), contarSilabas(data, "en-us"));
       break;
     case "spanish":
-      value = spanish(p(data), s(data, "es"));
+      value = spanish(p(data), contarSilabas(data, "es"));
       break;
     case "french":
-      value = french(p(data), s(data, "fr" as any)); // no siempre soporta frances
+      value = french(p(data), contarSilabas(data, "es"));
       break;
     default:
       value = 207;

@@ -62,7 +62,6 @@ app.get('/ecosia', function(req: Request, res: Response) {
         // Document is an Object of Type "Documents", Defined.
         stare.prepareSerp('ecosia_serp', result)
             .then(function(result) {
-                console.log("Result is: " + result);
                 const Json: string = stare.get_Json();
                 res.send(Json);
             })
@@ -79,29 +78,25 @@ app.get('/ecosia', function(req: Request, res: Response) {
 
 // GET THE GOOGLE SERP
 // SEND THE SERP TO THE PREPARATION IN STARE
-app.get('/google', function(req: Request, res: Response) {
-    stare.reset();
-    const q: string = req.query.q as string;
-    const p: number = parseInt(req.query.p as string) || 0;
-    lastCall = {};
-    
-    googleCall(q, p).then(result => {
-        // Document is an Object of Type "Documents", Defined.
-        stare.prepareSerp('google_serp', result)
-            .then(function(result) {
-                console.log("Result is: " + result);
-                const Json: string = stare.get_Json();
-                res.send(Json);
-            })
-            .catch(error => {
-                console.error("Error preparing SERP:", error);
-                res.status(500).send("Error processing request");
-            });
-    })
-    .catch(error => {
-        console.error("Error in googleCall:", error);
+app.get('/google', async function(req: Request, res: Response) {
+    try {
+        stare.reset();
+        const q = req.query.q as string;
+        const p = parseInt(req.query.p as string) || 0;
+        lastCall = {};
+
+        const result = await googleCall(q, p);
+        const prepared = await stare.prepareSerp('google_serp', result);
+
+        await stare.get_Metrics(...metrics);
+
+        const Json = stare.get_Json();
+        res.send(Json);
+
+    } catch (error) {
+        console.error("Error in /google:", error);
         res.status(500).send("Error processing request");
-    });
+    }
 });
 
 // GET MORE DOCUMENTS

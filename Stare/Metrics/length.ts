@@ -10,6 +10,7 @@ export async function get_value(
   input: string,
   index: number
 ): Promise<[number, string, number]> {
+  console.log('lenght')
   const data = await fs.readFile(input);
   const length = data.length + 1;
   return [length, "length", index];
