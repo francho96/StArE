@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import * as palettes from './ColorPallettes.js';
 
 interface DocumentData {
   [key: string]: any;
