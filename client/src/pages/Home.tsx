@@ -3,13 +3,17 @@ import StArESearch from '../components/StArESearch';
 import BubbleChartComponent from '../visualizations/BubbleChart';
 import { useState } from 'react';
 import { fetchDocuments } from '../calls/google-fetch';
+import { useCallHistory } from '../hooks/useCallHistory';
 
 function Home() {
   const [selectedOption, setSelectedOption] = useState(0);
 
   const [result, setResult] = useState(null)
+    const { addCall } = useCallHistory();
 
   const handleSearch = async (query: string) => {
+    console.log(query)
+    addCall(query)
     const returnData = await fetchDocuments(query);
     setResult(returnData)
   };
