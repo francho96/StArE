@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # namespace: starejs-express-example
+  name: starejs-express-example
+spec:
+  type: LoadBalancer
+  selector:
+    run: starejs-express-example
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

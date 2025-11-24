@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starejs-express-example
+  # namespace: starejs-express-example
+spec:
+  selector:
+    matchLabels:
+      run: starejs-express-example
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        run: starejs-express-example
+    spec:
+      nodeSelector:
+        type: starejs-workload
+      containers:
+        - name: starejs-server
+          image: "southamerica-west1-docker.pkg.dev/starejs/starejs/starejs-server:final"
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "4"
+              memory: "4800Mi"
+          env:
+            - name: NODE_OPTIONS
+              value: --max-old-space-size=7500
+            - name: SOLR_ENDPOINT
+              value: http://solr-np.starejs-resources.svc.cluster.local:80
+            - name: SOLR_CORE
+              value: starejs
+            - name: REQUEST_TIMEOUT
+              value: "30000"
+            - name: ENABLE_MULTI_CORE
+              value: "true"
+            - name: DEBUG
+              value: "simple-express-server*,stare.js:server*,express:router"
+            - name: SERVER_PORT
+              value: "3000"
+            - name: RATE_LIMIT_WINDOW_MS
+              value: "3000"
+            - name: RATE_LIMIT_MAX_PER_WINDOW
+              value: "1"
+          ports:
+            - containerPort: 3000
+              name: "server-endpoint"
+          workingDir: /starejs/examples/simple-express-server
+          command: [ "node" ]
+          args:
+            - index.js
+          livenessProbe:
+            exec:
+              command:
+                - touch
+                - /tmp/healthy
+            initialDelaySeconds: 5
+            periodSeconds: 30
