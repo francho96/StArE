@@ -1,23 +1,9 @@
 import cheerio from 'cheerio';
 import rp from 'request-promise';
 import _ from 'lodash';
+import { EcosiaDocument, SerpResponse } from '../interfaces';
 
 const SEARCH_URL = `https://ecosia.org/search`;
-
-interface EcosiaDocument {
-  title: string;
-  link: string;
-  snippet: string;
-  image: string;
-}
-
-interface SerpResponse {
-  totalResults: number;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-  documents: EcosiaDocument[];
-}
 
 /**
  * Get the SERP from Ecosia and returns an object with the StArE.js standard format.

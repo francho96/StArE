@@ -1,65 +1,6 @@
+import { GlobalStareOptions } from '../interfaces';
 import os from 'os';
 
-export interface GoogleOptions {
-  apiKey: string;
-  apiCx: string;
-}
-
-export interface BingOptions {
-  serviceKey: string;
-}
-
-export interface EcosiaOptions {
-  resultsPerPage: number;
-}
-
-export interface ElasticsearchOptions {
-  baseUrl: string;
-  _index: string;
-  _source: string;
-  titleProperty: string;
-  bodyProperty: string;
-  snippetProperty: string;
-  imageProperty: string;
-}
-
-export interface SolrOptions {
-  baseUrl: string;
-  core: string;
-  titleProperty: string;
-  bodyProperty: string;
-  linkProperty?: string;
-  snippetProperty: string;
-  imageProperty: string;
-}
-
-export interface SearchCloudOptions {
-  searchEndpoint: string;
-  apiVersion: string;
-  titleProperty: string;
-  bodyProperty: string;
-  linkProperty?: string;
-  snippetProperty: string;
-  imageProperty: string;
-}
-
-export interface GlobalStareOptions {
-  engines: string[];
-  personalMetrics: { [key: string]: string };
-  personalSERPs: { [key: string]: string };
-  numberOfResults: number;
-  requestTimeout: number;
-  enableMultiCore: boolean;
-  workerThreads: number;
-  customScraper: string | null;
-  customScraperOpts: any | null;
-  google: GoogleOptions;
-  bing: BingOptions;
-  ecosia: EcosiaOptions;
-  elasticsearch: ElasticsearchOptions;
-  solr: SolrOptions;
-  searchcloud: SearchCloudOptions;
-}
 
 declare global {
   var stareOptions: GlobalStareOptions;

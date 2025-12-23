@@ -1,36 +1,11 @@
 import { extractBody } from "../scrapper";
 import { threadId } from 'worker_threads';
 import debug from 'debug';
+import { CalculateOptions, MetricResult, StareDocument } from "../interfaces";
 
 const debugInstance = debug(`stare.js:server/metrics/length [Thread #${threadId}]`);
 const requiresScrapping = true;
 
-interface StareDocument {
-  title: string;
-  link: string;
-  body: string | null;
-  htmlCode: string;
-  snippet: string | null;
-  image: string | null;
-}
-
-interface SearchInfo {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-}
-
-interface CalculateOptions {
-  searchInfo: SearchInfo;
-  index: number;
-}
-
-interface MetricResult {
-  name: string;
-  index: number;
-  value: number;
-}
 
 /**
  * Calculates the length (number of chars) of the document.

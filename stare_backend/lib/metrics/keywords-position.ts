@@ -1,43 +1,12 @@
 import { threadId } from 'worker_threads';
 import debug from 'debug';
-import { extractBody } from "../scrapper";
+import { CalculateOptions, KeywordPositions, MetricResult, StareDocument } from '../interfaces';
+import { extractBody } from '../scrapper';
 
 const debugInstance = debug(`stare.js:server/metrics/keywords-position [Thread #${threadId}]`);
 const requiresScrapping = true;
 
-interface StareDocument {
-  title: string;
-  link: string;
-  body: string | null;
-  htmlCode: string;
-  snippet: string | null;
-  image: string | null;
-}
 
-interface SearchInfo {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-}
-
-interface CalculateOptions {
-  searchInfo: SearchInfo;
-  index: number;
-}
-
-interface KeywordPositions {
-  documentLength: number;
-  keywords: {
-    [key: string]: number[];
-  };
-}
-
-interface MetricResult {
-  name: string;
-  index: number;
-  value: KeywordPositions | number;
-}
 
 /**
  * Calculates positions of keywords in the document text.

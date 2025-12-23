@@ -4,45 +4,10 @@ import cheerio from 'cheerio';
 import url from 'url';
 import psl from 'psl';
 import _ from 'lodash';
+import { CalculateOptions, MetricResult, PslResult, StareDocument, TagMapping } from '../interfaces';
 
 const debugInstance = debug(`stare.js:server/metrics/links [Thread #${threadId}]`);
 const requiresScrapping = true;
-
-interface StareDocument {
-  title: string;
-  link: string;
-  body: string | null;
-  htmlCode: string;
-  snippet: string | null;
-  image: string | null;
-}
-
-interface SearchInfo {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-}
-
-interface CalculateOptions {
-  searchInfo: SearchInfo;
-  index: number;
-}
-
-interface MetricResult {
-  name: string;
-  index: number;
-  value: string[] | number;
-}
-
-interface PslResult {
-  domain?: string;
-  [key: string]: any;
-}
-
-interface TagMapping {
-  [key: string]: string;
-}
 
 const TAG_MAPPING: TagMapping = {
   'a': 'href',

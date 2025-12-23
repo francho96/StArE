@@ -68,7 +68,7 @@
     "babel-jest": "^29.5.0",
     "coveralls": "^3.1.0",
     "dotenv": "^16.0.0",
-    "azure-cognitiveservices-websearch": "^3.0.0",
+    "@azure/cognitiveservices-websearch": "^3.0.1",
     "googleapis": "^122.0.0",
     "ms-rest-azure": "^3.0.0"
   },

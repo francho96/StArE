@@ -3,43 +3,10 @@ import debug from 'debug';
 import _ from 'lodash';
 import axios from 'axios';
 import qs from 'qs';
+import { SerpResponse, SolrResponse, SolrResponseDoc } from '../interfaces';
 
 const debugInstance = debug(`stare.js:server/serp/solr [Thread #${threadId}]`);
 
-interface SolrDocument {
-  title: string;
-  link: string | null;
-  body: string | null;
-  snippet: string;
-  image?: any;
-}
-
-interface SolrResponseDoc {
-  [key: string]: any;
-}
-
-interface SolrResponse {
-  data: {
-    responseHeader: {
-      params: {
-        q: string;
-      };
-    };
-    response: {
-      numFound: number;
-      start: number;
-      docs: SolrResponseDoc[];
-    };
-  };
-}
-
-interface SerpResponse {
-  totalResults: number;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-  documents: SolrDocument[];
-}
 
 interface SolrOptions {
   baseUrl: string;

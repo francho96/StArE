@@ -1,36 +1,10 @@
 import { threadId } from 'worker_threads';
 import debug from 'debug';
 import cheerio from 'cheerio';
+import { CalculateOptions, MultimediaCount, StareDocument } from '../interfaces';
 
 const debugInstance = debug(`stare.js:server/metrics/multimedia [Thread #${threadId}]`);
 const requiresScrapping = true;
-
-interface StareDocument {
-  title: string;
-  link: string;
-  body: string | null;
-  htmlCode: string;
-  snippet: string | null;
-  image: string | null;
-}
-
-interface SearchInfo {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-}
-
-interface CalculateOptions {
-  searchInfo: SearchInfo;
-  index: number;
-}
-
-interface MultimediaCount {
-  video: number;
-  img: number;
-  audio: number;
-}
 
 interface MetricResult {
   name: string;

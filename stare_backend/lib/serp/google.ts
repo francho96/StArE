@@ -1,52 +1,11 @@
 import debug from 'debug';
+import { GoogleDocument, GoogleSearchResponse, SerpResponse } from '../interfaces';
 import _ from 'lodash';
 
 const debugInstance = debug('stare.js:server/serp/google');
 
-interface GoogleDocument {
-  title: string;
-  link: string;
-  snippet: string;
-  image?: string;
-}
 
-interface GoogleSearchResponse {
-  data: {
-    searchInformation: {
-      formattedTotalResults: string;
-    };
-    queries: {
-      request: Array<{
-        searchTerms: string;
-        startIndex: number;
-      }>;
-    };
-    items?: Array<{
-      title: string;
-      link: string;
-      snippet: string;
-      pagemap?: {
-        cse_image?: Array<{
-          src: string;
-        }>;
-      };
-    }>;
-  };
-  config: {
-    params: {
-      start: number;
-      num: number;
-    };
-  };
-}
 
-interface SerpResponse {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-  documents: GoogleDocument[];
-}
 
 try {
   require.resolve(`${process.cwd()}/node_modules/googleapis`);

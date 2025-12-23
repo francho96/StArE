@@ -4,37 +4,11 @@ import './config/defaultOptions';
 import { isMainThread, parentPort, threadId } from 'worker_threads';
 import debug from 'debug';
 import WorkerPool from './worker_pool';
+import { MetricResult, Partition, PartitionResult, StareOptions, WorkerData } from './interfaces';
 
 const debugInstance = debug(`stare.js:server [Thread #${threadId}]`);
 
-interface StareOptions {
-  engines: string[];
-  personalSERPs: { [key: string]: string };
-  personalMetrics: { [key: string]: string };
-  enableMultiCore: boolean;
-  workerThreads: number;
-  [key: string]: any;
-}
 
-interface Partition {
-  startIndex: number;
-  numResults: number;
-}
-
-interface PartitionResult {
-  threads: number;
-  partitions: Partition[];
-  numPartitions: number;
-}
-
-interface WorkerData {
-  engine: string;
-  query: string;
-  startIndex: number;
-  numberOfResults: number;
-  metrics: string[];
-  opts: Partial<StareOptions>;
-}
 
 interface SerpResponse {
   totalResults: string | number;
@@ -47,11 +21,7 @@ interface SerpResponse {
   }>;
 }
 
-interface MetricResult {
-  name: string;
-  index: number;
-  value: any;
-}
+
 
 type WebSearchFunction = (
   engine: string, 

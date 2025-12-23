@@ -1,31 +1,6 @@
+import { CalculateOptions, MetricResult, StareDocument } from "../interfaces";
+
 const requiresScrapping = false;
-
-interface StareDocument {
-  title: string;
-  link: string;
-  body: string | null;
-  htmlCode: string;
-  snippet: string | null;
-  image: string | null;
-}
-
-interface SearchInfo {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-}
-
-interface CalculateOptions {
-  searchInfo: SearchInfo;
-  index: number;
-}
-
-interface MetricResult {
-  name: string;
-  index: number;
-  value: number;
-}
 
 /**
  * Calculates the ranking stare-format document based

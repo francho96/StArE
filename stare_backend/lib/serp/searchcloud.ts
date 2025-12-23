@@ -2,39 +2,9 @@ import debug from 'debug';
 import _ from 'lodash';
 import rp from 'request-promise';
 import qs from 'qs';
+import { SearchCloudHit, SearchCloudResponse, SerpResponse } from '../interfaces';
 
 const debugInstance = debug('stare.js:server/serp/searchcloud');
-
-// Interfaces para el tipado
-interface SearchCloudDocument {
-  title: string;
-  link: string | null;
-  body: string | null;
-  snippet: string;
-  image?: any;
-}
-
-interface SearchCloudHit {
-  [key: string]: any;
-}
-
-interface SearchCloudResponse {
-  hits: {
-    found: number;
-    start: number;
-    hit: SearchCloudHit[];
-  };
-}
-
-interface SerpResponse {
-  totalResults: number;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-  documents: SearchCloudDocument[];
-}
-
-
 
 try {
   const stareOptions = global.stareOptions;

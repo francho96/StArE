@@ -1,39 +1,10 @@
 import debug from 'debug';
+import { SerpResponse } from '../interfaces';
+import { BingDocument } from '../interfaces';
+import { BingSearchResponse } from '../interfaces';
 import _ from 'lodash';
 
 const debugInstance = debug('stare.js:server/serp/bing');
-
-interface BingDocument {
-  title: string;
-  link: string;
-  snippet: string;
-  image?: any;
-}
-
-interface BingWebPage {
-  value: Array<{
-    url: string;
-    name: string;
-    snippet: string;
-    image?: any;
-  }>;
-  totalEstimatedMatches: number;
-}
-
-interface BingSearchResponse {
-  webPages: BingWebPage;
-  queryContext: {
-    originalQuery: string;
-  };
-}
-
-interface SerpResponse {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-  documents: BingDocument[];
-}
 
 try {
   require.resolve(`${process.cwd()}/node_modules/ms-rest-azure`);

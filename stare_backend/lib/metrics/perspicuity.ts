@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { extractBody } from "../scrapper";
 import { threadId } from 'worker_threads';
 import debug from 'debug';
+import { CalculateOptions, ErrorResult, StareDocument, SupportedLanguages } from '../interfaces';
 
 const lngDetector = new LanguageDetect();
 const hyphenator = hyphenopoly.config({
@@ -14,41 +15,6 @@ const hyphenator = hyphenopoly.config({
 
 const debugInstance = debug(`stare.js:server/metrics/perspicuity [Thread #${threadId}]`);
 const requiresScrapping = true;
-
-interface StareDocument {
-  title: string;
-  link: string;
-  body: string | null;
-  htmlCode: string;
-  snippet: string | null;
-  image: string | null;
-}
-
-interface SearchInfo {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-}
-
-interface CalculateOptions {
-  searchInfo: SearchInfo;
-  index: number;
-}
-
-interface LanguageConfig {
-  hyphenatorCode: string;
-  val: (words: number, syllables: number) => number;
-}
-
-interface SupportedLanguages {
-  [key: string]: LanguageConfig;
-}
-
-interface ErrorResult {
-  code: number;
-  message: string;
-}
 
 interface MetricResult {
   name: string;

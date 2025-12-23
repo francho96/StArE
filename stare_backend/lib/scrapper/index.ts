@@ -5,28 +5,9 @@ import _ from 'lodash';
 import { threadId } from 'worker_threads';
 import debug from 'debug';
 import path from 'path';
+import { ScrapeOptions, SerpResponse, StareDocument } from '../interfaces';
 
 const debugInstance = debug(`stare.js:server/scrapper [Thread #${threadId}]`);
-
-interface StareDocument {
-  link: string | null;
-  body: string | null;
-  title?: string;
-  snippet?: string;
-  image?: string;
-  htmlCode?: string;
-}
-
-interface SerpResponse {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  documents: StareDocument[];
-}
-
-interface ScrapeOptions {
-  [key: string]: any;
-}
 
 /**
  * Downloads the HTML code of a Stare Document.
@@ -37,7 +18,7 @@ interface ScrapeOptions {
  *                      with a custom scraper.
  * @returns {Promise<string>} Promise object with the HTML code.
  */
-async function defaultScrape(stareDocument: StareDocument, opts: ScrapeOptions = {}): Promise<string> {
+async function defaultScrape(stareDocument: StareDocument, opts: ScrapeOptions = {}): Promise<string | null> {
   if (_.has(stareDocument, 'link') && validUrl.isUri(stareDocument.link)) {
     const url = _.get(stareDocument, 'link');
     debugInstance("Scraping from the web [%s]", url);
@@ -117,4 +98,3 @@ async function allDocsHtmlCode(serpResponse: SerpResponse): Promise<StareDocumen
 }
 
 export { extractBody, allDocsHtmlCode };
-export type { StareDocument, SerpResponse, ScrapeOptions };

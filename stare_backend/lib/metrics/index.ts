@@ -2,42 +2,13 @@ import debug from 'debug';
 import path from 'path';
 import { allDocsHtmlCode } from '../scrapper';
 import _ from 'lodash';
+import { SerpResponse } from '../interfaces';
+import { MetricModule } from '../interfaces';
+import { CalculateOptions } from '../interfaces';
 
 const debugInstance = debug('stare.js:server/metrics/');
 
-interface StareDocument {
-  title: string;
-  link: string;
-  body: string | null;
-  htmlCode: string;
-  snippet: string | null;
-  image: string | null;
-}
 
-interface SerpResponse {
-  totalResults: number;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-  documents: StareDocument[];
-}
-
-interface SearchInfo {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-}
-
-interface CalculateOptions {
-  searchInfo: SearchInfo;
-  index: number;
-}
-
-interface MetricModule {
-  calculate: (stareDocument: StareDocument, opts: CalculateOptions) => Promise<any>;
-  requiresScrapping: boolean;
-}
 
 /* Sets all the available feature extractors/metrics, stare metrics + personal metrics  */
 const availableMetrics: { [key: string]: string } = {

@@ -2,41 +2,12 @@ import LanguageDetect from 'languagedetect';
 import _ from 'lodash';
 import { threadId } from 'worker_threads';
 import debug from 'debug';
+import { CalculateOptions, MetricResult, StareDocument } from '../interfaces';
 
 const lngDetector = new LanguageDetect();
 const debugInstance = debug(`stare.js:server/metrics/language [Thread #${threadId}]`);
 const requiresScrapping = false;
 
-interface StareDocument {
-  title: string;
-  link: string;
-  body: string | null;
-  htmlCode: string;
-  snippet: string | null;
-  image: string | null;
-}
-
-interface SearchInfo {
-  totalResults: string;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-}
-
-interface CalculateOptions {
-  searchInfo: SearchInfo;
-  index: number;
-}
-
-interface MetricResult {
-  name: string;
-  index: number;
-  value: string | null;
-}
-
-interface LanguageProbability {
-  [key: string]: number;
-}
 
 /**
  * Defines the language of the stare-format document based

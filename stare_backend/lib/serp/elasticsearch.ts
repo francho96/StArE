@@ -2,37 +2,11 @@ import debug from 'debug';
 import _ from 'lodash';
 import rp from 'request-promise';
 import qs from 'qs';
+import { ElasticsearchHit, ElasticsearchResponse, SerpResponse } from '../interfaces';
 
 const debugInstance = debug('stare.js:server/serp/elasticsearch');
 
-interface ElasticsearchDocument {
-  title: string;
-  link: string | null;
-  body: string | null;
-  snippet: string;
-  image?: any;
-}
 
-interface ElasticsearchHit {
-  _source: {
-    [key: string]: any;
-  };
-}
-
-interface ElasticsearchResponse {
-  hits: {
-    total: number;
-    hits: ElasticsearchHit[];
-  };
-}
-
-interface SerpResponse {
-  totalResults: number;
-  searchTerms: string;
-  numberOfItems: number;
-  startIndex: number;
-  documents: ElasticsearchDocument[];
-}
 
 interface ElasticsearchOptions {
   baseUrl: string;
