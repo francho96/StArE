@@ -24,12 +24,12 @@ async function calculate(stareDocument: StareDocument, opts: CalculateOptions): 
     let probabilities: [string, number][] = [];
 
     // Check body first, then snippet as fallback
-    if (_.has(stareDocument, 'body') && stareDocument.body !== null && stareDocument.body.length > 0) {
-      probabilities = lngDetector.detect(stareDocument.body, 1);
-      language = probabilities.length > 0 ? probabilities[0][0] : null;
-    } else if (_.has(stareDocument, 'snippet') && stareDocument.snippet !== null && stareDocument.snippet.length > 0) {
-      probabilities = lngDetector.detect(stareDocument.snippet, 1);
-      language = probabilities.length > 0 ? probabilities[0][0] : null;
+    if (_.has(stareDocument, 'body') && stareDocument.body !== null && stareDocument.body!.length > 0) {
+      probabilities = lngDetector.detect(stareDocument.body!, 1);
+      language = probabilities.length > 0 ? probabilities[0]![0] : null;
+    } else if (_.has(stareDocument, 'snippet') && stareDocument.snippet !== null && stareDocument.snippet!.length > 0) {
+      probabilities = lngDetector.detect(stareDocument.snippet!, 1);
+      language = probabilities.length > 0 ? probabilities[0]![0] : null;
     }
 
     return {

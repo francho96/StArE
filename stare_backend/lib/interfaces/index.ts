@@ -17,6 +17,7 @@ export interface ElasticsearchOptions {
     _source: string;
     titleProperty: string;
     bodyProperty: string;
+    linkProperty?: string;
     snippetProperty: string;
     imageProperty: string;
 }
@@ -43,8 +44,8 @@ export interface SearchCloudOptions {
 
 export interface GlobalStareOptions {
     engines: string[];
-    personalMetrics: { [key: string]: string };
-    personalSERPs: { [key: string]: string };
+    personalMetrics: { [key: string]: string | undefined };
+    personalSERPs: { [key: string]: string | undefined };
     numberOfResults: number;
     requestTimeout: number;
     enableMultiCore: boolean;
@@ -60,7 +61,7 @@ export interface GlobalStareOptions {
 }
 
 export interface SearchInfo {
-    totalResults: string;
+    totalResults: string | number;
     searchTerms: string;
     numberOfItems: number;
     startIndex: number;
@@ -77,9 +78,9 @@ export interface MetricModule {
 }
 export interface StareDocument {
     title: string;
-    link: string;
+    link: string | null;
     body?: string | null;
-    htmlCode: string;
+    htmlCode?: string | null;
     snippet?: string | null;
     image?: string | null;
 }
@@ -94,7 +95,7 @@ export interface KeywordPositions {
 export interface MetricResult {
     name: string;
     index: number;
-    value: KeywordPositions | number | string;
+    value: KeywordPositions | number | string | null | string[];
 }
 
 export interface ScrapeOptions {
@@ -278,7 +279,7 @@ export interface SerpResponse {
     searchTerms: string;
     numberOfItems: number;
     startIndex: number;
-    documents: SolrDocument[] | SearchCloudDocument[] | GoogleDocument[] | BingDocument[] | StareDocument[] | EcosiaDocument[] | ElasticsearchDocument[];
+    documents?: SolrDocument[] | SearchCloudDocument[] | GoogleDocument[] | BingDocument[] | StareDocument[] | EcosiaDocument[] | ElasticsearchDocument[];
 }
 
 export interface StareOptions {

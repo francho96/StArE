@@ -70,8 +70,8 @@ const mySERPs = {
   personalSERP: './my-serps/my-serp'
 };
 
-const stare = require('../../lib').default({
-  engines: ['solr'],
+const stare = require('../../dist').default({
+  engines: ['google'],
   enableMultiCore: (process.env.ENABLE_MULTI_CORE === 'true') || false,
   workerThreads: Number(process.env.WORKER_THREADS) || os.cpus().length,
   requestTimeout: 2000,
@@ -162,7 +162,7 @@ app.listen(PORT, () => {
     max: Number(process.env.RATE_LIMIT_MAX_PER_WINDOW) || 1,
   });
   
-  debugInstance(`App running on [http://localhost:${PORT}]!`);
+  console.log(`App running on [http://localhost:${PORT}]!`);
 });
 
 export default app;

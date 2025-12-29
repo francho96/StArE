@@ -106,8 +106,8 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
     const items = sortApiResults(responses);
 
     const formattedResponse: SerpResponse = {
-      totalResults: Number(responses[0].webPages.totalEstimatedMatches).toLocaleString().replace(/,/g, '.'),
-      searchTerms: responses[0].queryContext.originalQuery,
+      totalResults: Number(responses[0]!.webPages.totalEstimatedMatches).toLocaleString().replace(/,/g, '.'),
+      searchTerms: responses[0]!.queryContext.originalQuery,
       numberOfItems: items.length,
       startIndex: 1,
       documents: items

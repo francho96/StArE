@@ -1,6 +1,6 @@
 import { threadId } from 'worker_threads';
 import debug from 'debug';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { CalculateOptions, MultimediaCount, StareDocument } from '../interfaces';
 
 const debugInstance = debug(`stare.js:server/metrics/multimedia [Thread #${threadId}]`);
@@ -21,21 +21,44 @@ interface MetricResult {
  * @returns {Promise<MetricResult>}
  */
 async function calculate(stareDocument: StareDocument, opts: CalculateOptions): Promise<MetricResult> {
+
   try {
-    const $ = cheerio.load(stareDocument.htmlCode);
+    if (!stareDocument.htmlCode && !stareDocument.body) {
+      debugInstance('No HTML or body available, returning -1');
+      return {
+        name: 'multimedia',
+        index: opts.index,
+        value: -1
+      };
+    }
+    
+    const htmlContent = stareDocument.htmlCode || stareDocument.body || '';
+    
+    if (!htmlContent.trim()) {
+      debugInstance('Empty HTML/body content');
+      return {
+        name: 'multimedia',
+        index: opts.index,
+        value: { video: 0, img: 0, audio: 0 }
+      };
+    }
+    
+    const $ = cheerio.load(htmlContent);
     const multimedia: MultimediaCount = {
       video: $('video').length,
       img: $('picture, :not(picture)>img').length,
       audio: $('audio').length
     };
-
+    
+    debugInstance('Multimedia counts:', multimedia);
+    
     return {
       name: 'multimedia',
       index: opts.index,
       value: multimedia
     };
   } catch (err) {
-    debugInstance(err);
+    debugInstance('Error in multimedia calculation:', err);
     return {
       name: 'multimedia',
       index: opts.index,

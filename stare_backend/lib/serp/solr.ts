@@ -90,8 +90,8 @@ async function getResultPages(query: string, startIndex: number, numberOfResults
     // Extract the documents relevant info for Stare.js
     formattedResponse.documents = response.data.response.docs.map((item: SolrResponseDoc) => ({
       title: _.get(item, TITLE_PROPERTY, ''),
-      link: _.get(item, LINK_PROPERTY, null),
-      body: _.get(item, BODY_PROPERTY, null),
+      link: _.get(item, LINK_PROPERTY as any, null),
+      body: _.get(item, BODY_PROPERTY as any, null),
       snippet: _.get(item, SNIPPET_PROPERTY, ''),
       image: _.get(item, IMAGE_PROPERTY)
     }));

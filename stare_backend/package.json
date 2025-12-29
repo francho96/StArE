@@ -6,11 +6,10 @@
     "server",
     "serp",
     "visualization",
-    "typescript",
     "search",
     "metrics"
   ],
-  "main": "dist/lib/stare.js",
+  "main": "dist/stare.js",
   "files": [
     "dist/",
     "LICENSE",
@@ -19,11 +18,10 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "node dist/lib/stare.js",
+    "start": "node lib/index.ts",
     "dev": "ts-node lib/stare.ts",
-    "test": "jest test/stare.test.js",
-    "test:coveralls": "jest test/stare.test.js --coverage --coverageReporters=text",
-    "clean": "rm -rf dist",
+    "test": "jest",
+    "clean": "rimraf dist",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -40,46 +38,48 @@
   "homepage": "https://github.com/StArE-js/stare.js-server#readme",
   "dependencies": {
     "axios": "^1.6.0",
-    "cheerio": "^1.0.0-rc.12",
+    "cheerio": "^1.1.2",
     "debug": "^4.3.4",
+    "hyphen": "^1.13.0",
+    "hyphenate": "^0.2.5",
     "hyphenopoly": "^4.1.0",
     "languagedetect": "^2.0.0",
     "lodash": "^4.17.21",
+    "psl": "^1.9.0",
     "qs": "^6.11.0",
-    "valid-url": "^1.0.9",
-    "request-promise": "^4.2.6",
-    "psl": "^1.9.0"
+    "valid-url": "^1.0.9"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/cheerio": "^0.22.0",
-    "@types/debug": "^4.1.0",
-    "@types/jest": "^29.5.0",
-    "@types/lodash": "^4.14.0",
-    "@types/valid-url": "^1.0.3",
-    "@types/request-promise": "^4.1.0",
-    "@types/psl": "^1.1.0",
-    "typescript": "^5.0.0",
-    "ts-node": "^10.9.0",
-    "jest": "^29.5.0",
-    "ts-jest": "^29.1.0",
     "@babel/core": "^7.22.0",
     "@babel/preset-env": "^7.22.0",
+    "@types/cheerio": "^0.22.0",
+    "@types/debug": "^4.1.0",
+    "@types/hyphen": "^1.6.7",
+    "@types/jest": "^29.5.0",
+    "@types/lodash": "^4.14.0",
+    "@types/node": "^20.0.0",
+    "@types/psl": "^1.1.0",
+    "@types/valid-url": "^1.0.3",
+    "azure-cognitiveservices-websearch": "^2.0.0",
     "babel-jest": "^29.5.0",
     "coveralls": "^3.1.0",
     "dotenv": "^16.0.0",
-    "@azure/cognitiveservices-websearch": "^3.0.1",
     "googleapis": "^122.0.0",
-    "ms-rest-azure": "^3.0.0"
+    "jest": "^29.5.0",
+    "ms-rest-azure": "^3.0.0",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
   },
   "directories": {
     "doc": "docs",
     "example": "examples",
-    "lib": "src",
+    "lib": "lib",
     "test": "test"
   },
   "author": "d-salazar-se",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=14.0.0"
   }
 }

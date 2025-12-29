@@ -1,8 +1,8 @@
 import debug from 'debug';
 import _ from 'lodash';
-import rp from 'request-promise';
 import qs from 'qs';
 import { SearchCloudHit, SearchCloudResponse, SerpResponse } from '../interfaces';
+import axios from 'axios';
 
 const debugInstance = debug('stare.js:server/serp/searchcloud');
 
@@ -10,11 +10,11 @@ try {
   const stareOptions = global.stareOptions;
 
   if (!_.has(stareOptions, 'searchcloud') ||
-      !_.has(stareOptions.searchcloud, 'searchEndpoint') ||
-      !_.has(stareOptions.searchcloud, 'apiVersion') ||
-      !_.has(stareOptions.searchcloud, 'titleProperty') ||
-      !_.has(stareOptions.searchcloud, 'snippetProperty') ||
-      !_.has(stareOptions.searchcloud, 'imageProperty')) {
+    !_.has(stareOptions.searchcloud, 'searchEndpoint') ||
+    !_.has(stareOptions.searchcloud, 'apiVersion') ||
+    !_.has(stareOptions.searchcloud, 'titleProperty') ||
+    !_.has(stareOptions.searchcloud, 'snippetProperty') ||
+    !_.has(stareOptions.searchcloud, 'imageProperty')) {
     throw new Error("NO_SEACHCLOUD_OPTIONS");
   }
 } catch (e) {
@@ -61,14 +61,11 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
 
   const queryString = qs.stringify(queryParams);
   const searchUrl = `${SEARCH_ENDPOINT}/${API_VERSION}/search?${queryString}`;
-  
+
   debugInstance(`AWS Search Cloud url [${searchUrl}]`);
 
   try {
-    const awsSearchCloudResult: SearchCloudResponse = await rp({
-      uri: searchUrl,
-      json: true
-    });
+    const awsSearchCloudResult: SearchCloudResponse = await axios.get(searchUrl);
 
     const formattedResponse: SerpResponse = {
       totalResults: awsSearchCloudResult.hits.found,
@@ -81,7 +78,7 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
     // Extract the documents relevant info for Stare.js
     formattedResponse.documents = awsSearchCloudResult.hits.hit.map((item: SearchCloudHit) => ({
       title: _.get(item, TITLE_PROPERTY, ''),
-      link: _.get(item, LINK_PROPERTY, null),
+      link: _.get(item, LINK_PROPERTY as any, null),
       body: _.get(item, BODY_PROPERTY, null),
       snippet: _.get(item, SNIPPET_PROPERTY, ''),
       image: _.get(item, IMAGE_PROPERTY)

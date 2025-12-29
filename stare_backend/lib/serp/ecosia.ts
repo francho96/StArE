@@ -1,7 +1,7 @@
-import cheerio from 'cheerio';
-import rp from 'request-promise';
+import * as cheerio from 'cheerio';
 import _ from 'lodash';
 import { EcosiaDocument, SerpResponse } from '../interfaces';
+import axios from 'axios';
 
 const SEARCH_URL = `https://ecosia.org/search`;
 
@@ -22,7 +22,8 @@ async function getResultPages(query: string, numberOfResults: number): Promise<S
   const searchUrl = `${SEARCH_URL}?q=${encodeURIComponent(query)}&p=${pageNumber}`;
 
   try {
-    const html = await rp(searchUrl);
+    const response = await axios.get(searchUrl);
+    const html = response.data
     const $ = cheerio.load(html);
 
     if ($('div.result-count').length === 0) {

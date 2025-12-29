@@ -1,6 +1,6 @@
 import { threadId } from 'worker_threads';
 import debug from 'debug';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import url from 'url';
 import psl from 'psl';
 import _ from 'lodash';
@@ -21,13 +21,18 @@ const TAG_MAPPING: TagMapping = {
 /**
  * Extracts hostname from URL source
  */
-function getHostname(source: string | null | undefined): string | null {
+function getHostname(source: string | number | null | undefined): string | null {
   try {
-    if (_.isEmpty(source) || source === '#') {
+    if (source == null) {
       return null;
     }
 
-    const urlParsed = url.parse(source || '');
+    const sourceStr = String(source);
+    if (sourceStr === '' || sourceStr === '#') {
+      return null;
+    }
+
+    const urlParsed = url.parse(sourceStr);
     const hostname = _.get(urlParsed, 'hostname');
     const pslParsed: PslResult = psl.parse(hostname || '');
     return _.get(pslParsed, 'domain', null);
@@ -46,11 +51,11 @@ function getHostname(source: string | null | undefined): string | null {
  */
 async function calculate(stareDocument: StareDocument, opts: CalculateOptions): Promise<MetricResult> {
   try {
-    const $ = cheerio.load(stareDocument.htmlCode);
+    const $ = cheerio.load(stareDocument.htmlCode!);
     const anchors: string[] = [];
-    let hostname: string | null = '';
+    let hostname: string | number | null;
     let tag: string;
-    let source: string | undefined;
+    let source: string | number | null | undefined;
     let attrs: any;
 
     // Add the main document hostname
@@ -61,11 +66,11 @@ async function calculate(stareDocument: StareDocument, opts: CalculateOptions): 
 
     $('a, img, video, audio, iframe, source').each((i, el) => {
       tag = _.get(el, 'name', '');
-      source = _.get(el, ['attribs', TAG_MAPPING[tag]]);
+      source = _.get(el, ['attribs', TAG_MAPPING[tag]!]);
       hostname = getHostname(source);
 
-      if (!_.isEmpty(hostname) && anchors.indexOf(hostname) === -1) {
-        anchors.push(hostname);
+      if (!_.isEmpty(hostname) && anchors.indexOf(hostname!) === -1) {
+        anchors.push(hostname!);
       }
     });
 

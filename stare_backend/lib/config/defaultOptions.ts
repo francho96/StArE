@@ -26,8 +26,8 @@ global.stareOptions = {
   customScraperOpts: null,
   /* Google API */
   google: {
-    apiKey: '',
-    apiCx: ''
+    apiKey: 'AIzaSyCmGpofWrPxQT-KrJnoArXaas0zOADXikA',
+    apiCx: '010212477578150644501:wtqrloafnss'
   },
   /* Bing API */
   bing: {

@@ -1,5 +1,5 @@
 import LanguageDetect from 'languagedetect';
-import hyphenopoly from 'hyphenopoly';
+import { hyphenate } from "hyphen/es";
 import _ from 'lodash';
 import { extractBody } from "../scrapper";
 import { threadId } from 'worker_threads';
@@ -7,11 +7,7 @@ import debug from 'debug';
 import { CalculateOptions, ErrorResult, StareDocument, SupportedLanguages } from '../interfaces';
 
 const lngDetector = new LanguageDetect();
-const hyphenator = hyphenopoly.config({
-  require: ['es', 'en-us', 'fr'],
-  hyphen: '-',
-  sync: true
-});
+
 
 const debugInstance = debug(`stare.js:server/metrics/perspicuity [Thread #${threadId}]`);
 const requiresScrapping = true;
@@ -70,15 +66,14 @@ function splitWords(text: string): string[] {
  * Gets the number of syllables in the text variable.
  *
  * @param {string} text String text
- * @param {string} lang Language code for hyphenopoly
  * @returns {number} Number of syllables
  */
-function syllables(text: string, lang: string): number {
-  const hyphenateText = hyphenator.get(lang);
-  return hyphenateText(cleanString(text))
-    .replace(' ', '-')
-    .split('-')
-    .length;
+async function syllables(text: string): Promise<number> {
+  const hyphenated = await hyphenate(cleanString(text));
+
+  return hyphenated.split(/\s+/)
+    .map(word => (word.match(/-/g) || []).length + 1)
+    .reduce((total, count) => total + count, 0);
 }
 
 /**
@@ -104,7 +99,7 @@ function words(text: string): number {
 async function calculate(stareDocument: StareDocument, opts: CalculateOptions): Promise<MetricResult> {
   try {
     const text = extractBody(stareDocument);
-    const detectedLanguage = lngDetector.detect(text, 1)[0][0];
+    const detectedLanguage = lngDetector.detect(text, 1)[0]![0];
     const language = _.get(SUPPORTED_LANGUAGES, detectedLanguage, null);
 
     if (!language) {
@@ -118,7 +113,7 @@ async function calculate(stareDocument: StareDocument, opts: CalculateOptions): 
       };
     }
 
-    let value = language.val(words(text), syllables(text, language.hyphenatorCode));
+    let value = language.val(words(text), await syllables(text));
     value = Math.round(value);
 
     if (value < 0) {

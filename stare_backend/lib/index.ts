@@ -87,7 +87,7 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
 
   /* Import personal SERP, this will override the integrated ones if the key name is the name */
   for (const engine in global.stareOptions.personalSERPs) {
-    const enginePath = path.resolve(process.cwd(), global.stareOptions.personalSERPs[engine]);
+    const enginePath = path.resolve(process.cwd(), global.stareOptions.personalSERPs[engine]!);
     engines[engine] = require(enginePath).default || require(enginePath);
   }
 
@@ -200,10 +200,10 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
       // Join the partition responses together
       const responses = await Promise.all(promises);
       const serpResponse: SerpResponse = {
-        totalResults: responses[0].totalResults,
-        searchTerms: responses[0].searchTerms,
+        totalResults: responses[0]!.totalResults,
+        searchTerms: responses[0]!.searchTerms,
         numberOfItems: 0,
-        startIndex: responses[0].startIndex,
+        startIndex: responses[0]!.startIndex,
         documents: []
       };
 
@@ -257,16 +257,16 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
             getMetrics(formattedResponse, metricsArray)
               .then((values: MetricResult[]) => {
                 for (const response of values) {
-                  if (typeof formattedResponse.documents[response.index].metrics === 'undefined') {
-                    formattedResponse.documents[response.index].metrics = {};
+                  if (typeof formattedResponse.documents[response.index]!.metrics === 'undefined') {
+                    formattedResponse.documents[response.index]!.metrics = {};
                   }
-                  formattedResponse.documents[response.index].metrics![response.name] = response.value;
+                  formattedResponse.documents[response.index]!.metrics![response.name] = response.value;
                 }
                 resolve(formattedResponse);
               })
               .catch(err => reject(err));
           })
-          .catch(err => reject(err));
+          .catch((err: any) => reject(err));
       });
     };
 

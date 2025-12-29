@@ -12,17 +12,17 @@ const debugInstance = debug('stare.js:server/metrics/');
 
 /* Sets all the available feature extractors/metrics, stare metrics + personal metrics  */
 const availableMetrics: { [key: string]: string } = {
+  'ranking': './ranking',
   'language': './language',
   'length': './length',
   'links': './links',
   'multimedia': './multimedia',
   'perspicuity': './perspicuity',
-  'ranking': './ranking',
   'keywords-position': './keywords-position'
 };
 
 for (const metric in global.stareOptions.personalMetrics) {
-  availableMetrics[metric] = path.resolve(process.cwd(), global.stareOptions.personalMetrics[metric]);
+  availableMetrics[metric] = path.resolve(process.cwd(), global.stareOptions.personalMetrics[metric]!);
 }
 
 /**
@@ -34,7 +34,7 @@ for (const metric in global.stareOptions.personalMetrics) {
  */
 async function getMetrics(serpResponse: SerpResponse, metrics: string[]): Promise<any[]> {
   const promises: Promise<any>[] = [];
-
+  debugInstance(metrics)
   if (metrics.length === 0 || _.isEmpty(serpResponse)) {
     return Promise.all(promises);
   }
@@ -59,13 +59,14 @@ async function getMetrics(serpResponse: SerpResponse, metrics: string[]): Promis
       debugInstance(`Error loading metric '${metric}': ${error}`);
     }
   }
-
   // Download the HTML code if scraping is required
   let processedSerpResponse = { ...serpResponse };
   if (scrappingRequired) {
+
     processedSerpResponse.documents = await allDocsHtmlCode(serpResponse);
   }
 
+  //debugInstance('Entra iteracion')
   // Calculate metrics for each document
   for (let index = 0; index < processedSerpResponse.numberOfItems; index++) {
     const opts: CalculateOptions = {
@@ -77,18 +78,26 @@ async function getMetrics(serpResponse: SerpResponse, metrics: string[]): Promis
       },
       index: index
     };
-
+    debugInstance(opts)
     // Define which info each metric will require
     for (const metric of metrics) {
       const metricPath = availableMetrics[metric];
       if (!metricPath) {
         continue;
       }
+      //debugInstance('Entra a calcular metricas')
 
       try {
         const metricModule: MetricModule = await import(metricPath);
         if (typeof metricModule.calculate === 'function') {
-          promises.push(metricModule.calculate(processedSerpResponse.documents[index], opts));
+          const doc = processedSerpResponse.documents?.[index];
+          if (doc) {
+            
+            promises.push(metricModule.calculate(doc, opts));
+
+          } else {
+            debugInstance(`Document at index ${index} is missing; skipping metric '${metric}'.`);
+          }
         } else {
           debugInstance(`Metric '${metric}' calculate is not a function.`);
         }
@@ -102,8 +111,15 @@ async function getMetrics(serpResponse: SerpResponse, metrics: string[]): Promis
 
   // Clean up htmlCode if scraping was required
   if (scrappingRequired) {
-    for (let i = 0; i < processedSerpResponse.documents.length; i++) {
-      delete processedSerpResponse.documents[i].htmlCode;
+    if (processedSerpResponse.documents) {
+      for (let i = 0; i < processedSerpResponse.documents.length; i++) {
+        const doc = processedSerpResponse.documents[i];
+        if (doc) {
+          if ('htmlCode' in doc) {
+            delete (doc as any).htmlCode;
+          }
+        }
+      }
     }
   }
 

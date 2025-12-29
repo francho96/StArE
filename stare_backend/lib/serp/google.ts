@@ -56,23 +56,23 @@ async function searchWithGoogleApi(query: string, start: number, num: number): P
  */
 function sortApiResults(responses: GoogleSearchResponse[]): GoogleDocument[] {
   const finalItems: GoogleDocument[] = [];
-  
-  const totalItems = responses.reduce((acc, response) => 
+
+  const totalItems = responses.reduce((acc, response) =>
     acc + _.get(response, 'config.params.num', 0), 0);
-  
+
   finalItems.length = totalItems;
 
   responses.forEach(response => {
     const start = _.get(response, 'config.params.start', 1);
     const num = _.get(response, 'config.params.num', 0);
-    
+
     const responseItems = _.get(response, 'data.items', []);
-    
+
     for (let index = 0; index < num; index++) {
       const item = responseItems[index];
       if (!item) continue;
 
-      const image = (((_.get(item, 'pagemap') || {}).cse_image || {})[0] || {}).src;
+      const image = ((_.get(item, 'pagemap') as any)?.cse_image?.[0] as { src: string } | undefined)?.src;
 
       finalItems[start + index - 1] = {
         title: _.get(item, 'title', ''),
@@ -98,10 +98,10 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
   if (!query || query.length === 0) {
     throw new Error('Query cannot be null.');
   }
-  
+
   const MAX_GOOGLE_API_DOCUMENTS = 100;
   const MAX_PER_REQUEST = 10;
-  
+
   const resultsCount = numberOfResults || global.stareOptions.numberOfResults;
   const finalNumberOfResults = resultsCount > MAX_GOOGLE_API_DOCUMENTS ? MAX_GOOGLE_API_DOCUMENTS : resultsCount;
 
@@ -127,10 +127,10 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
     const googleResult = _.get(responses[0], 'data');
 
     const formattedResponse: SerpResponse = {
-      totalResults: googleResult.searchInformation.formattedTotalResults,
-      searchTerms: googleResult.queries.request[0].searchTerms,
+      totalResults: googleResult!.searchInformation.formattedTotalResults,
+      searchTerms: googleResult!.queries!.request[0]!.searchTerms,
       numberOfItems: items.length,
-      startIndex: googleResult.queries.request[0].startIndex,
+      startIndex: googleResult!.queries!.request[0]!.startIndex,
       documents: items
     };
 

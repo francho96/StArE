@@ -1,33 +1,20 @@
 import debug from 'debug';
 import _ from 'lodash';
-import rp from 'request-promise';
 import qs from 'qs';
 import { ElasticsearchHit, ElasticsearchResponse, SerpResponse } from '../interfaces';
+import axios from 'axios';
 
 const debugInstance = debug('stare.js:server/serp/elasticsearch');
-
-
-
-interface ElasticsearchOptions {
-  baseUrl: string;
-  _index: string;
-  _source: string;
-  titleProperty: string;
-  bodyProperty: string;
-  linkProperty: string;
-  snippetProperty: string;
-  imageProperty: string;
-}
 
 try {
   const stareOptions = global.stareOptions;
   if (!_.has(stareOptions, 'elasticsearch') ||
-      !_.has(stareOptions.elasticsearch, 'baseUrl') ||
-      !_.has(stareOptions.elasticsearch, '_index') ||
-      !_.has(stareOptions.elasticsearch, '_source') ||
-      !_.has(stareOptions.elasticsearch, 'titleProperty') ||
-      !_.has(stareOptions.elasticsearch, 'snippetProperty') ||
-      !_.has(stareOptions.elasticsearch, 'imageProperty')) {
+    !_.has(stareOptions.elasticsearch, 'baseUrl') ||
+    !_.has(stareOptions.elasticsearch, '_index') ||
+    !_.has(stareOptions.elasticsearch, '_source') ||
+    !_.has(stareOptions.elasticsearch, 'titleProperty') ||
+    !_.has(stareOptions.elasticsearch, 'snippetProperty') ||
+    !_.has(stareOptions.elasticsearch, 'imageProperty')) {
     throw new Error("NO_ELASTICSEARCH_OPTIONS");
   }
 } catch (e) {
@@ -81,10 +68,7 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
   debugInstance(`Elastic Search url [${searchUrl}]`);
 
   try {
-    const elasticResult: ElasticsearchResponse = await rp({
-      uri: searchUrl,
-      json: true
-    });
+    const elasticResult: ElasticsearchResponse = await axios.get(searchUrl);
 
     const formattedResponse: SerpResponse = {
       totalResults: elasticResult.hits.total,
@@ -96,11 +80,11 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
 
     // Extract the documents relevant info for Stare.js
     formattedResponse.documents = elasticResult.hits.hits.map((item: ElasticsearchHit) => ({
-      title: _.get(item[_SOURCE], TITLE_PROPERTY, ''),
-      link: _.get(item[_SOURCE], LINK_PROPERTY, null),
-      body: _.get(item[_SOURCE], BODY_PROPERTY, null),
-      snippet: _.get(item[_SOURCE], SNIPPET_PROPERTY, ''),
-      image: _.get(item[_SOURCE], IMAGE_PROPERTY)
+      title: _.get(item._source, TITLE_PROPERTY, ''),
+      link: _.get(item._source, LINK_PROPERTY as any, null),
+      body: _.get(item._source, BODY_PROPERTY, null),
+      snippet: _.get(item._source, SNIPPET_PROPERTY, ''),
+      image: _.get(item._source, IMAGE_PROPERTY)
     }));
 
     return formattedResponse;
