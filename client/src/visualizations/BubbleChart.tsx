@@ -114,7 +114,7 @@ function bubbleChart(): BubbleChart {
   let width: number = 600;
   let transition: number = 500;
   let height: number = 400;
-  let marginTop: number = 40;
+  let marginTop: number = 10;
   let minRadius: number = 8;
   let maxRadius: number = 50;
   let attrRadius: string = 'length';
@@ -237,7 +237,7 @@ function bubbleChart(): BubbleChart {
         .style("opacity", 0.8)
         .on("mouseover", function(event: MouseEvent, d: DocumentData) {
             const rawLength = d.metrics?.length;
-            const rawScore = d.metrics?.perspicuity ?? d.metrics?.perspicuity;
+            const rawScore = d.metrics?.ranking ?? d.metrics?.ranking;
 
             const lengthVal = (rawLength !== undefined && rawLength !== null && typeof rawLength === 'object') ? 0 : (rawLength ?? 0);
             const scoreVal = (rawScore !== undefined && rawScore !== null && typeof rawScore === 'object') ? 0 : (rawScore ?? 0);
@@ -245,7 +245,7 @@ function bubbleChart(): BubbleChart {
             tooltip.html(`
             <strong>${d.title}</strong><br/>
             ${d.snippet}<br/>
-            <em>Length: ${lengthVal} | Score: ${scoreVal}</em>
+            <em>Length: ${lengthVal} | Ranking: ${scoreVal}</em>
             `);
           d3.select(this).style("stroke", "yellow").style("stroke-width", "3px");
           tooltip.style("visibility", "visible");

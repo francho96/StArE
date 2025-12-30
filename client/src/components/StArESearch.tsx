@@ -15,11 +15,19 @@ import { useState } from 'react';
 
 type StArESearchProps = {
   selectedOption: number;
+  loading: boolean;
+  searched: boolean;
   setSelectedOption: (e: number) => void;
-  handleSearch: (e: string) => void
+  handleSearch: (e: string) => void;
 };
 
-function StArESearch({ selectedOption, setSelectedOption, handleSearch }: StArESearchProps) {
+function StArESearch({
+  loading,
+  selectedOption,
+  setSelectedOption,
+  handleSearch,
+  searched,
+}: StArESearchProps) {
   const [query, setQuery] = useState('');
   const theme = useTheme();
 
@@ -57,8 +65,6 @@ function StArESearch({ selectedOption, setSelectedOption, handleSearch }: StArES
     transition: 'all 0.2s linear',
   };
 
-  
-
   return (
     <Box
       sx={{
@@ -70,48 +76,63 @@ function StArESearch({ selectedOption, setSelectedOption, handleSearch }: StArES
       <Typography fontSize={12} color={theme.palette.grey[600]}>
         StArE aún esta en proceso de pruebas
       </Typography>
-      <FormControl
-        sx={{ m: 1, maxWidth: '600px', width: 1 }}
-        variant="outlined"
-      >
-        <OutlinedInput
-          id="outlined-adornment-password"
-          type={'text'}
-          placeholder="Iniciemos una busqueda"
-          onChange={(e) => setQuery(e.target.value)}
-          endAdornment={
-            <InputAdornment position="end">
-              <IconButton edge="end" onClick={() => handleSearch(query)}>
-                <SearchIcon />
-              </IconButton>
-            </InputAdornment>
-          }
-          sx={{
-            borderRadius: '20px',
-          }}
-        />
-      </FormControl>
-      <Box
-        display={'flex'}
-        justifyContent={'space-between'}
-        width={1}
-        maxWidth={700}
-        gap={2}
-        height={1}
-      >
-        <Card sx={{...cardSx, borderColor: selectedOption == 0 ? 'red' : ''}} onClick={() => setSelectedOption(0)} >
-          Burbujas
-          <BubbleChartIcon color="disabled" />
-        </Card>
-        <Card sx={cardSxDisabled} onClick={() => setSelectedOption(0)}>
-          Barras
-          <BarChartIcon color="disabled" />
-        </Card>
-        <Card sx={cardSxDisabled} onClick={() => setSelectedOption(0)}>
-          Torta
-          <PieChartIcon color="disabled" />
-        </Card>
-      </Box>
+      {!searched && (
+        <>
+          <FormControl
+            sx={{ m: 1, maxWidth: '600px', width: 1 }}
+            variant="outlined"
+          >
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={'text'}
+              placeholder="Iniciemos una busqueda"
+              onChange={(e) => setQuery(e.target.value)}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    edge="end"
+                    onClick={() => (!loading ? handleSearch(query) : null)}
+                  >
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
+              sx={{
+                borderRadius: '20px',
+              }}
+              disabled={loading}
+            />
+          </FormControl>
+          <Box
+            display={'flex'}
+            justifyContent={'space-between'}
+            width={1}
+            maxWidth={700}
+            gap={2}
+            height={1}
+          >
+            <Card
+              sx={
+                loading
+                  ? { ...cardSx, ...cardSxDisabled }
+                  : { ...cardSx, borderColor: selectedOption == 0 ? 'red' : '' }
+              }
+              onClick={() => setSelectedOption(0)}
+            >
+              Burbujas
+              <BubbleChartIcon color="disabled" />
+            </Card>
+            <Card sx={cardSxDisabled} onClick={() => setSelectedOption(0)}>
+              Barras
+              <BarChartIcon color="disabled" />
+            </Card>
+            <Card sx={cardSxDisabled} onClick={() => setSelectedOption(0)}>
+              Torta
+              <PieChartIcon color="disabled" />
+            </Card>
+          </Box>
+        </>
+      )}
     </Box>
   );
 }
