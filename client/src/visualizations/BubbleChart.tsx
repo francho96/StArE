@@ -5,7 +5,6 @@ export default function BubbleChartComponent({ data }: any) {
   const chartRef = useRef<HTMLDivElement | null>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
-  console.log(data);
   useEffect(() => {
     const updateSize = () => {
       if (chartRef.current) {
@@ -31,6 +30,7 @@ export default function BubbleChartComponent({ data }: any) {
     const renderDataBubbleChart = async () => {
       try {
         const json = data;
+        console.log(json)
         chart = bubbleChart()
           .height(600)
           .width(700)
@@ -40,7 +40,7 @@ export default function BubbleChartComponent({ data }: any) {
           .attrRadius('length')
           .transition(1000)
           .showTitleOnCircle(true)
-          .customColors('perpiscuity', 'A3', false);
+          .customColors('ranking', 'A3', false);
 
         if (chartRef.current) {
           d3.select(chartRef.current).selectAll('*').remove();
@@ -52,7 +52,6 @@ export default function BubbleChartComponent({ data }: any) {
     };
 
     if (containerSize.width > 0 && containerSize.height > 0) {
-      console.log('aaa');
       renderDataBubbleChart();
     }
 
@@ -80,14 +79,20 @@ export default function BubbleChartComponent({ data }: any) {
   );
 }
 
-
+interface Metrics {
+  links: string[];
+  ranking: number;
+  language: string;
+  length: number;
+  perspicuity: number;
+}
 interface DocumentData {
   [key: string]: any;
   title: string;
   snippet: string;
   link: string;
-  length?: number;
-  perpiscuity?: number;
+  image: string;
+  metrics: Metrics
 }
 
 interface BubbleChart {
@@ -113,7 +118,7 @@ function bubbleChart(): BubbleChart {
   let minRadius: number = 8;
   let maxRadius: number = 50;
   let attrRadius: string = 'length';
-  let attrColors: string = 'perpiscuity';
+  let attrColors: string = 'ranking';
   let colorDomain: number[];
   let forceApart: number = -100;
   let customRange: string[];
@@ -176,7 +181,7 @@ function bubbleChart(): BubbleChart {
       } else {
         let min = Infinity, max = -Infinity;
         for (const e of documents) {
-          const value = e[attrColors];
+          const value = e.metrics[attrColors];
           if (value !== undefined && value !== null) {
             if (value < min) min = value;
             if (value > max) max = value;
@@ -193,11 +198,11 @@ function bubbleChart(): BubbleChart {
       }
 
       const minRadiusDomain = d3.min(documents, (d: DocumentData) => {
-        return d[attrRadius] ? +d[attrRadius] : 0;
+        return d.metrics[attrRadius] ? + d.metrics[attrRadius] : 0;
       }) || 0;
 
       const maxRadiusDomain = d3.max(documents, (d: DocumentData) => {
-        return d[attrRadius] ? +d[attrRadius] : 0;
+        return d.metrics[attrRadius] ? + d.metrics[attrRadius] : 0;
       }) || 0;
 
       const responsiveMinRadius = Math.max(8, actualWidth * 0.02); 
@@ -215,14 +220,14 @@ function bubbleChart(): BubbleChart {
 
       node.append("circle")
         .attr("r", (d: DocumentData) => {
-          return d[attrRadius] ? scaleRadius(d[attrRadius]) : responsiveMinRadius;
+          return d.metrics[attrRadius] ? scaleRadius(d.metrics[attrRadius]) : responsiveMinRadius;
         })
         .style("fill", (d: DocumentData) => {
-          if (d[attrColors] !== undefined && d[attrColors] !== null) {
+          if (d.metrics[attrColors] !== undefined && d.metrics[attrColors] !== null) {
             if (customColors) {
-              return (colorCircles as d3.ScaleLinear<number, string>)(d[attrColors]);
+              return (colorCircles as d3.ScaleLinear<number, string>)(d.metrics[attrColors]);
             } else {
-              return (colorCircles as d3.ScaleOrdinal<string, string>)(d[attrColors].toString());
+              return (colorCircles as d3.ScaleOrdinal<string, string>)(d.metrics[attrColors].toString());
             }
           }
           return "#69b3a2";
@@ -231,11 +236,17 @@ function bubbleChart(): BubbleChart {
         .style("stroke-width", "2px")
         .style("opacity", 0.8)
         .on("mouseover", function(event: MouseEvent, d: DocumentData) {
-          tooltip.html(`
+            const rawLength = d.metrics?.length;
+            const rawScore = d.metrics?.perspicuity ?? d.metrics?.perspicuity;
+
+            const lengthVal = (rawLength !== undefined && rawLength !== null && typeof rawLength === 'object') ? 0 : (rawLength ?? 0);
+            const scoreVal = (rawScore !== undefined && rawScore !== null && typeof rawScore === 'object') ? 0 : (rawScore ?? 0);
+
+            tooltip.html(`
             <strong>${d.title}</strong><br/>
             ${d.snippet}<br/>
-            <em>Length: ${d.length} | Score: ${d.perpiscuity}</em>
-          `);
+            <em>Length: ${lengthVal} | Score: ${scoreVal}</em>
+            `);
           d3.select(this).style("stroke", "yellow").style("stroke-width", "3px");
           tooltip.style("visibility", "visible");
         })
@@ -255,7 +266,7 @@ function bubbleChart(): BubbleChart {
         .force("x", d3.forceX<DocumentData>(actualWidth / 2).strength(0.05))
         .force("y", d3.forceY<DocumentData>(actualHeight / 2).strength(0.05))
         .force("collision", d3.forceCollide<DocumentData>().radius((d: DocumentData) => {
-          const radius = d[attrRadius] ? scaleRadius(d[attrRadius]) : responsiveMinRadius;
+          const radius = d.metrics[attrRadius] ? scaleRadius(d.metrics[attrRadius]) : responsiveMinRadius;
           return radius + 2;
         }))
         .alphaDecay(0.02)
@@ -263,13 +274,13 @@ function bubbleChart(): BubbleChart {
 
       function ticked() {
         node.attr("transform", (d: any) => {
-          const currentMaxRadius = d[attrRadius] ? scaleRadius(d[attrRadius]) : responsiveMinRadius;
+          const currentMaxRadius = d.metrics[attrRadius] ? scaleRadius(d.metrics[attrRadius]) : responsiveMinRadius;
           const x = Math.max(currentMaxRadius, Math.min(actualWidth - currentMaxRadius, d.x || actualWidth / 2));
           const y = Math.max(currentMaxRadius, Math.min(actualHeight - currentMaxRadius, d.y || actualHeight / 2));
           return `translate(${x}, ${y})`;
         });
       }
-
+      console.log(title)
       if (title) {
         svg.append('text')
           .attr('x', actualWidth / 2)
@@ -294,13 +305,13 @@ function bubbleChart(): BubbleChart {
           
           node.selectAll("circle")
             .attr("r", (d: DocumentData) => {
-              return d[attrRadius] ? scaleRadius(d[attrRadius]) : newMinRadius;
+              return d.metrics[attrRadius] ? scaleRadius(d.metrics[attrRadius]) : newMinRadius;
             });
           
           simulation.force("x", d3.forceX<DocumentData>(newWidth / 2))
                    .force("y", d3.forceY<DocumentData>(newHeight / 2))
                    .force("collision", d3.forceCollide<DocumentData>().radius((d: DocumentData) => {
-                     const radius = d[attrRadius] ? scaleRadius(d[attrRadius]) : newMinRadius;
+                     const radius = d.metrics[attrRadius] ? scaleRadius(d.metrics[attrRadius]) : newMinRadius;
                      return radius + 2;
                    }));
           

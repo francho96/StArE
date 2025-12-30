@@ -3,8 +3,8 @@
   "version": "1.2.0",
   "description": "Servidor backend y core para Stare.js",
   "main": "index.js",
-  "scripts": {
-    "server": "nodemon ./server/app.ts",
+ "scripts": {
+    "server": "npm run build --prefix ./stare_backend && npm run dev --prefix ./stare_backend/examples/simple-express-server",
     "client": "npm run dev --prefix client",
     "build-client": "npm run builddev --prefix client",
     "start": "concurrently \"npm run server\" \"npm run client\""
