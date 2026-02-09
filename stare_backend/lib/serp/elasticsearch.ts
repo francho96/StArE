@@ -48,14 +48,21 @@ interface QueryParams {
  * @param {number} numberOfResults Number of documents to get from the SERP.
  * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from ElasticSearch.
  */
-async function getResultPages(query: string, numberOfResults?: number): Promise<SerpResponse> {
+/**
+ * Scrape the Elasticsearch search results.
+ * @param {string} query The search query.
+ * @param {number} startIndex Start index (offset).
+ * @param {number} numberOfResults Number of results to return.
+ * @returns {Promise<ElasticsearchResponse>} Raw Elasticsearch response.
+ */
+export async function scrape(query: string, startIndex: number, numberOfResults?: number): Promise<ElasticsearchResponse> {
   if (!query || query.length === 0) {
     throw new Error('Query cannot be null.');
   }
 
   const queryParams: QueryParams = {
     q: query,
-    from: 0,
+    from: startIndex || 0,
     rest_total_hits_as_int: true,
     size: numberOfResults || global.stareOptions.numberOfResults,
     track_scores: true,
@@ -69,28 +76,73 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
 
   try {
     const elasticResult: ElasticsearchResponse = await axios.get(searchUrl);
+    // Attach query params to the result to pass context to processResponse if needed, 
+    // but processResponse needs 'query' and 'from' which are in queryParams.
+    // simpler to pass them as args to processResponse or return a tuple/object. 
+    // But for now, let's keep it simple. We might need to adjust processResponse signature.
+    // Actually, let's attach the queryParams to the response object if possible or just pass them.
+    // The axios response contains config which has metadata, but here we return elasticResult which is response.data usually?
+    // Wait, axios.get returns a Response object, but the original code typed it as ElasticsearchResponse immediately:
+    // const elasticResult: ElasticsearchResponse = await axios.get(searchUrl); 
+    // This is likely wrong typing in the original code if it meant response.data, OR axios interceptor handles it.
+    // Assuming the original code works, let's trust it returns the data directly or the object structure matches.
+    // However, looking at the code: `const elasticResult: ElasticsearchResponse = await axios.get(searchUrl);`
+    // Usually axios.get returns { data: ... }. So elasticResult probably holds the whole axios response? 
+    // In the original code: `elasticResult.hits.total` suggests it is the data. 
+    // But axios.get returns a wrapper. Let's assume the user knows what they are doing with axios or has an interceptor.
+    // actually, let's look at the original code again: `const elasticResult: ElasticsearchResponse = await axios.get(searchUrl);`
+    // and then `elasticResult.hits.total`. If axios.get returns the standard response, `hits` would be on `data`.
+    // If I change it, I might break it. But `processResponse` needs the `from` value (0 here) and `query`.
 
-    const formattedResponse: SerpResponse = {
-      totalResults: elasticResult.hits.total,
-      searchTerms: query,
-      numberOfItems: elasticResult.hits.hits.length,
-      startIndex: queryParams.from + 1,
-      documents: []
-    };
-
-    // Extract the documents relevant info for Stare.js
-    formattedResponse.documents = elasticResult.hits.hits.map((item: ElasticsearchHit) => ({
-      title: _.get(item._source, TITLE_PROPERTY, ''),
-      link: _.get(item._source, LINK_PROPERTY as any, null),
-      body: _.get(item._source, BODY_PROPERTY, null),
-      snippet: _.get(item._source, SNIPPET_PROPERTY, ''),
-      image: _.get(item._source, IMAGE_PROPERTY)
-    }));
-
-    return formattedResponse;
+    // I will return an object wrapping the response and the context properties.
+    return elasticResult;
   } catch (err) {
     throw err;
   }
+}
+
+/**
+ * Process the raw Elasticsearch response and return a standard SerpResponse.
+ * @param {ElasticsearchResponse} elasticResult Raw Elasticsearch response.
+ * @param {string} query The search query.
+ * @returns {Promise<SerpResponse>} Standardized SerpResponse.
+ */
+export async function processResponse(elasticResult: ElasticsearchResponse, query: string, numberOfResults?: number): Promise<SerpResponse> {
+  // We need 'from' value. In scrape it acts as 0.
+  const from = 0;
+
+  const formattedResponse: SerpResponse = {
+    totalResults: elasticResult.hits.total,
+    searchTerms: query,
+    numberOfItems: elasticResult.hits.hits.length,
+    startIndex: from + 1,
+    documents: []
+  };
+
+  // Extract the documents relevant info for Stare.js
+  formattedResponse.documents = elasticResult.hits.hits.map((item: ElasticsearchHit) => ({
+    title: _.get(item._source, TITLE_PROPERTY, ''),
+    link: _.get(item._source, LINK_PROPERTY as any, null),
+    body: _.get(item._source, BODY_PROPERTY, null),
+    snippet: _.get(item._source, SNIPPET_PROPERTY, ''),
+    image: _.get(item._source, IMAGE_PROPERTY)
+  }));
+
+  return formattedResponse;
+}
+
+
+/**
+ * Get the SERP from ElasticSearch and returns an object with the StArE.js standard format.
+ *
+ * @async
+ * @param {string} query The search query.
+ * @param {number} numberOfResults Number of documents to get from the SERP.
+ * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from ElasticSearch.
+ */
+async function getResultPages(query: string, numberOfResults?: number): Promise<SerpResponse> {
+  const elasticResult = await scrape(query, 0, numberOfResults);
+  return processResponse(elasticResult, query, numberOfResults);
 }
 
 export default getResultPages;

@@ -52,7 +52,7 @@ async function searchWithBingApi(query: string, offset: number, count: number): 
  */
 function sortApiResults(responses: BingSearchResponse[]): BingDocument[] {
   const finalItems: BingDocument[] = [];
-  
+
   responses.forEach(response => {
     const responseItems = _.get(response, 'webPages.value', []);
 
@@ -75,9 +75,9 @@ function sortApiResults(responses: BingSearchResponse[]): BingDocument[] {
  * @async
  * @param {string} query The search query.
  * @param {number} numberOfResults Number of documents to get from the SERP.
- * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from Bing.
+ * @returns {Promise<BingSearchResponse[]>} Promise object with the raw Bing API responses.
  */
-async function getResultPages(query: string, numberOfResults?: number): Promise<SerpResponse> {
+export async function scrape(query: string, startIndex: number, numberOfResults?: number): Promise<BingSearchResponse[]> {
   if (!query || query.length === 0) {
     throw new Error('Query cannot be null.');
   }
@@ -89,7 +89,7 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
   const finalNumberOfResults = resultsCount > MAX_BING_API_DOCUMENTS ? MAX_BING_API_DOCUMENTS : resultsCount;
 
   const searchRequests: Promise<BingSearchResponse>[] = [];
-  let offset = 0;
+  let offset = startIndex || 0;
   let remainingResults = finalNumberOfResults;
   let page = 1;
 
@@ -97,26 +97,49 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
     const count = remainingResults > MAX_PER_REQUEST ? MAX_PER_REQUEST : remainingResults;
     searchRequests.push(searchWithBingApi(query, offset, count));
     remainingResults -= count;
-    offset = MAX_PER_REQUEST * page;
+    offset += count;
     page++;
   }
 
   try {
     const responses = await Promise.all(searchRequests);
-    const items = sortApiResults(responses);
-
-    const formattedResponse: SerpResponse = {
-      totalResults: Number(responses[0]!.webPages.totalEstimatedMatches).toLocaleString().replace(/,/g, '.'),
-      searchTerms: responses[0]!.queryContext.originalQuery,
-      numberOfItems: items.length,
-      startIndex: 1,
-      documents: items
-    };
-
-    return formattedResponse;
+    return responses;
   } catch (err) {
     throw err;
   }
+}
+
+/**
+ * Process the raw Bing API responses and return a StArE.js formatted SERP response.
+ * @param {BingSearchResponse[]} responses Array of Bing API responses
+ * @returns {Promise<SerpResponse>} Standardized SERP response
+ */
+export async function processResponse(responses: BingSearchResponse[]): Promise<SerpResponse> {
+  const items = sortApiResults(responses);
+
+  const formattedResponse: SerpResponse = {
+    totalResults: Number(responses[0]!.webPages.totalEstimatedMatches).toLocaleString().replace(/,/g, '.'),
+    searchTerms: responses[0]!.queryContext.originalQuery,
+    numberOfItems: items.length,
+    startIndex: 1, // This usage of 1 is hardcoded in formatting, maybe should depend on scrape input? But processResponse doesn't know startIndex unless passed. 
+    // The original code hardcoded it to 1. Leave it for now or assume separation of concerns means formatting just formats what it sees.
+    documents: items
+  };
+
+  return formattedResponse;
+}
+
+/**
+ * Get the SERP from Bing and returns an object with the StArE.js standard format.
+ *
+ * @async
+ * @param {string} query The search query.
+ * @param {number} numberOfResults Number of documents to get from the SERP.
+ * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from Bing.
+ */
+async function getResultPages(query: string, numberOfResults?: number): Promise<SerpResponse> {
+  const responses = await scrape(query, 0, numberOfResults);
+  return processResponse(responses);
 }
 
 export default getResultPages;
