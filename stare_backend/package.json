@@ -44,7 +44,7 @@
     "hyphenate": "^0.2.5",
     "hyphenopoly": "^4.1.0",
     "languagedetect": "^2.0.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "psl": "^1.9.0",
     "qs": "^6.11.0",
     "valid-url": "^1.0.9"
