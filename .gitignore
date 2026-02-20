@@ -2,3 +2,4 @@
 node_modules/
 dist/
 Stare/docs/**/*.txt
+stare_bakend/coverage/
