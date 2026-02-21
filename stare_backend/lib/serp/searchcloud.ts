@@ -19,7 +19,7 @@ try {
   }
 } catch (e) {
   debugInstance("AWS Search Cloud options not correctly configurated");
-  process.exit((e as NodeJS.ErrnoException).code);
+  throw new Error("AWS Search Cloud options not correctly configurated");
 }
 
 // Constantes de configuración
@@ -65,7 +65,8 @@ async function getResultPages(query: string, numberOfResults?: number): Promise<
   debugInstance(`AWS Search Cloud url [${searchUrl}]`);
 
   try {
-    const awsSearchCloudResult: SearchCloudResponse = await axios.get(searchUrl);
+    const response = await axios.get(searchUrl);
+    const awsSearchCloudResult: SearchCloudResponse = response.data as SearchCloudResponse;
 
     const formattedResponse: SerpResponse = {
       totalResults: awsSearchCloudResult.hits.found,

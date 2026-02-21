@@ -1,28 +1,9 @@
 /**
- * Test have been written for jest.
- * Docs here: https://jestjs.io/docs/en/getting-started
+ * Main test runner for StArE.js-server
+ * Imports all test suites.
  */
 
-import 'dotenv/config';
-import '../src/config/defaultOptions';
-
-declare global {
-  var stareOptions: {
-    google: {
-      apiKey: string;
-      apiCx: string;
-    };
-    bing: {
-      serviceKey: string;
-    };
-    [key: string]: any;
-  };
-}
-
-global.stareOptions.google.apiKey = '';
-global.stareOptions.google.apiCx = '';
-global.stareOptions.bing.serviceKey = '';
-
-import './metrics.test';
+import './parser.test';
 import './scrapper.test';
-// import './serp.test';
+import './metrics.test';
+import './core.test';

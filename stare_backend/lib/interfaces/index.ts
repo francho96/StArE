@@ -226,50 +226,50 @@ export interface GoogleSearchResponse {
 }
 
 export interface SearchCloudDocument {
-  title: string;
-  link: string | null;
-  body: string | null;
-  snippet: string;
-  image?: any;
+    title: string;
+    link: string | null;
+    body: string | null;
+    snippet: string;
+    image?: any;
 }
 
 export interface SearchCloudHit {
-  [key: string]: any;
+    [key: string]: any;
 }
 
 export interface SearchCloudResponse {
-  hits: {
-    found: number;
-    start: number;
-    hit: SearchCloudHit[];
-  };
+    hits: {
+        found: number;
+        start: number;
+        hit: SearchCloudHit[];
+    };
 }
 
 interface SolrDocument {
-  title: string;
-  link: string | null;
-  body: string | null;
-  snippet: string;
-  image?: any;
+    title: string;
+    link: string | null;
+    body: string | null;
+    snippet: string;
+    image?: any;
 }
 
 export interface SolrResponseDoc {
-  [key: string]: any;
+    [key: string]: any;
 }
 
 export interface SolrResponse {
-  data: {
-    responseHeader: {
-      params: {
-        q: string;
-      };
+    data: {
+        responseHeader: {
+            params: {
+                q: string;
+            };
+        };
+        response: {
+            numFound: number;
+            start: number;
+            docs: SolrResponseDoc[];
+        };
     };
-    response: {
-      numFound: number;
-      start: number;
-      docs: SolrResponseDoc[];
-    };
-  };
 }
 
 
@@ -283,30 +283,52 @@ export interface SerpResponse {
 }
 
 export interface StareOptions {
-  engines: string[];
-  personalSERPs: { [key: string]: string };
-  personalMetrics: { [key: string]: string };
-  enableMultiCore: boolean;
-  workerThreads: number;
-  [key: string]: any;
+    engines: string[];
+    personalSERPs: { [key: string]: string };
+    personalMetrics: { [key: string]: string };
+    enableMultiCore: boolean;
+    workerThreads: number;
+    [key: string]: any;
 }
 
 export interface Partition {
-  startIndex: number;
-  numResults: number;
+    startIndex: number;
+    numResults: number;
 }
 
 export interface PartitionResult {
-  threads: number;
-  partitions: Partition[];
-  numPartitions: number;
+    threads: number;
+    partitions: Partition[];
+    numPartitions: number;
 }
 
 export interface WorkerData {
-  engine: string;
-  query: string;
-  startIndex: number;
-  numberOfResults: number;
-  metrics: string[];
-  opts: Partial<StareOptions>;
+    engine: string;
+    query: string;
+    startIndex: number;
+    numberOfResults: number;
+    metrics: string[];
+    opts: Partial<StareOptions>;
+}
+
+/** Resultado del scraper: SerpResponse con htmlCode en cada documento */
+export interface ScrapedSerpResponse extends SerpResponse {
+    documents: StareDocument[];
+}
+
+/** Resultado del parser: documentos con body extraído */
+export interface ParsedSerpResponse extends SerpResponse {
+    documents: StareDocument[];
+}
+
+/** La instancia de StArE con métodos separados */
+export interface StareInstance {
+    /** Pipeline completo: scrape → parse → metrics */
+    search: (engine: string, query: string, numberOfResults: number, metrics: string[], startIndex?: number) => Promise<SerpResponse>;
+    /** Solo scraping: buscar en SERP y descargar HTML de cada documento */
+    scraper: (engine: string, query: string, numberOfResults: number, startIndex?: number) => Promise<ScrapedSerpResponse>;
+    /** Solo parsing: extraer body/text de documentos que ya tienen htmlCode */
+    parser: (serpResponse: SerpResponse) => ParsedSerpResponse;
+    /** Solo métricas: calcular métricas sobre documentos (opcionalmente ya parseados) */
+    metrics: (serpResponse: SerpResponse, metrics: string[]) => Promise<SerpResponse>;
 }
