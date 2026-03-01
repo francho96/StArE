@@ -45,7 +45,9 @@ async function searchWithGoogleApi(query: string, start: number, num: number): P
     num: num
   };
 
-  return customsearch.cse.list(opts);
+  const res = await customsearch.cse.list(opts);
+  debugInstance(`Google API response for start ${start}: %O`, res.data);
+  return res;
 }
 
 /**

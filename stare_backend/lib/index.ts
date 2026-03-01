@@ -224,10 +224,11 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
 
             promises.push(new Promise<SerpResponse>((resolve, reject) => {
               workerPool!.runTask(data, (err, result) => {
-                if (err === null) {
-                  resolve(result as SerpResponse);
+                if (err === null && result && result.err === null) {
+                  resolve(result.result as SerpResponse);
                 } else {
-                  reject(`Error while querying SERP for range [${data.startIndex}, ${data.startIndex + data.numberOfResults}]`);
+                  const errorMessage = result?.err || err || `Error while querying SERP for range [${data.startIndex}, ${data.startIndex + data.numberOfResults}]`;
+                  reject(errorMessage);
                 }
               });
             }));
@@ -248,7 +249,7 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
       const listOfListOfDocuments: any[][] = [];
       responses.forEach((value) => {
         listOfListOfDocuments.push(value.documents || []);
-        serpResponse.numberOfItems += value.numberOfItems;
+        serpResponse.numberOfItems += (Number(value.numberOfItems) || 0);
       });
 
       serpResponse.documents = _.flatten(listOfListOfDocuments);
