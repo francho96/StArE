@@ -195,8 +195,11 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
       let workerPool: WorkerPool | null = null;
       /* istanbul ignore next */
       if (process.env.NODE_ENV !== 'test') {
-        debugInstance("Initializing worker thread pool...");
-        workerPool = new WorkerPool(partitions.threads, __filename);
+        if (!(global as any).globalWorkerPool) {
+          debugInstance("Initializing global worker thread pool...");
+          (global as any).globalWorkerPool = new WorkerPool(partitions.threads, __filename);
+        }
+        workerPool = (global as any).globalWorkerPool;
       }
 
       for (const partition of partitions.partitions) {
@@ -253,10 +256,7 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
       });
 
       serpResponse.documents = _.flatten(listOfListOfDocuments);
-      /* istanbul ignore next */
-      if (workerPool) {
-        workerPool.close();
-      }
+
 
       return serpResponse;
     };

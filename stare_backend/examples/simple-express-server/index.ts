@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import debug from 'debug';
+import { isMainThread } from 'worker_threads';
 import express from 'express';
 import cors from 'cors';
 import figlet from 'figlet';
@@ -67,11 +68,11 @@ const myMetrics = {
 };
 
 const mySERPs = {
-  personalSERP: './my-serps/my-serp'
+  mock: './my-serps/mock'
 };
 
 const stareInstance = require('../../dist').default({
-  engines: ['google'],
+  engines: ['google', 'solr', 'mock'],
   enableMultiCore: (process.env.ENABLE_MULTI_CORE === 'true') || false,
   workerThreads: Number(process.env.WORKER_THREADS) || os.cpus().length,
   requestTimeout: 2000,
@@ -79,8 +80,8 @@ const stareInstance = require('../../dist').default({
   customScraperOpts: {
     core: "starejs-html"
   },
+  personalSERPs: mySERPs,
   // personalMetrics: myMetrics,
-  // personalSERPs: mySERPs,
   solr: {
     baseUrl: process.env.SOLR_ENDPOINT || 'http://localhost:8983',
     core: 'starejs',
@@ -107,7 +108,7 @@ app.get('/stare/:engine', (request, response) => {
 
   const metricList = (metrics as string).split(",");
 
-  console.time('Time taken');
+
 
   stareInstance.search(
     engine,
@@ -117,7 +118,7 @@ app.get('/stare/:engine', (request, response) => {
     Number(startIndex || 0)
   )
     .then((result: StareResponse) => {
-      console.timeEnd('Time taken');
+
       response.status(200).json(result);
     })
     .catch((err: Error) => {
@@ -144,25 +145,27 @@ app.get('/ip', (request, response) => {
 
 const PORT = process.env.SERVER_PORT || 3000;
 
-app.listen(PORT, () => {
-  debugInstance("WorkingDir %s", process.cwd());
+if (isMainThread) {
+  app.listen(PORT, () => {
+    debugInstance("WorkingDir %s", process.cwd());
 
-  figlet.text('StArE.js-server', (err: Error | null, data?: string) => {
-    if (err) {
-      debugInstance('Error generating figlet:', err);
-      return;
-    }
-    if (data) {
-      debugInstance(data);
-    }
+    figlet.text('StArE.js-server', (err: Error | null, data?: string) => {
+      if (err) {
+        debugInstance('Error generating figlet:', err);
+        return;
+      }
+      if (data) {
+        debugInstance(data);
+      }
+    });
+
+    debugInstance(`Using Request Limits %O`, {
+      windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 30000,
+      max: Number(process.env.RATE_LIMIT_MAX_PER_WINDOW) || 1,
+    });
+
+    console.log(`App running on [http://localhost:${PORT}]!`);
   });
-
-  debugInstance(`Using Request Limits %O`, {
-    windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 30000,
-    max: Number(process.env.RATE_LIMIT_MAX_PER_WINDOW) || 1,
-  });
-
-  console.log(`App running on [http://localhost:${PORT}]!`);
-});
+}
 
 export default app;
