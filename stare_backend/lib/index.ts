@@ -184,7 +184,8 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
       engine: string,
       query: string,
       numberOfResults: number,
-      startIndex: number = 0
+      startIndex: number = 0,
+      metrics: string[] = []
     ): Promise<SerpResponse> => {
       const threads = global.stareOptions.enableMultiCore ? Number(global.stareOptions.workerThreads) : 1;
       debugInstance(`using [${threads}] threads`);
@@ -197,7 +198,7 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
       if (process.env.NODE_ENV !== 'test') {
         if (!(global as any).globalWorkerPool) {
           debugInstance("Initializing global worker thread pool...");
-          (global as any).globalWorkerPool = new WorkerPool(partitions.threads, __filename);
+          (global as any).globalWorkerPool = new WorkerPool(threads, __filename);
         }
         workerPool = (global as any).globalWorkerPool;
       }
@@ -216,7 +217,7 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
               query,
               startIndex: partition.startIndex,
               numberOfResults: partition.numResults,
-              metrics: [], // no metrics in scraper-only mode
+              metrics: metrics,
               opts
             };
 
@@ -364,23 +365,9 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
     ): Promise<SerpResponse> => {
       debugInstance(`[search] Full pipeline: engine=${engine}, query=${query}, n=${numberOfResults}, metrics=${metricsArray.join(',')}`);
 
-      // Step 1: Scrape
-      const scraped = await scraper(engine, query, numberOfResults, startIndex);
-
-      // Step 2: Metrics (skip internal scraping since we already scraped)
-      // Note: parser() is NOT called here because the original flow never exposed
-      // parsed body in the response. Individual metrics call extractBody internally.
-      // Use stare.parser() standalone if you need parsed body text.
-      const result = await metrics(scraped, metricsArray);
-
-      // Clean up htmlCode from final response
-      if (result.documents) {
-        for (const doc of result.documents) {
-          if (doc && 'htmlCode' in doc) {
-            delete (doc as any).htmlCode;
-          }
-        }
-      }
+      // Dispatch the full pipeline (SERP + scraping + metrics) to worker threads
+      // Each worker executes webSearch_ which handles the complete flow
+      const result = await querySerp(engine, query, numberOfResults, startIndex, metricsArray);
 
       return result;
     };
