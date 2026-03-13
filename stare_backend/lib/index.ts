@@ -207,7 +207,7 @@ const stare = (opts: Partial<StareOptions> = {}): StareInstance | null => {
         if (process.env.NODE_ENV === 'test') {
           // In test environment, run directly to get coverage and avoid Jest worker import issues
           promises.push(
-            webSearch_(engine, query, partition.startIndex, partition.numResults, [], opts)
+            webSearch_(engine, query, partition.startIndex, partition.numResults, metrics, opts)
           );
         } else {
           /* istanbul ignore next */
