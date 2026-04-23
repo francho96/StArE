@@ -48,21 +48,14 @@ interface QueryParams {
  * @param {number} numberOfResults Number of documents to get from the SERP.
  * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from AWS Search Cloud.
  */
-/**
- * Scrape the AWS Search Cloud results.
- * @param {string} query The search query.
- * @param {number} startIndex Start index (offset).
- * @param {number} numberOfResults Number of results to return.
- * @returns {Promise<SearchCloudResponse>} Raw SearchCloud response.
- */
-export async function scrape(query: string, startIndex: number, numberOfResults?: number): Promise<SearchCloudResponse> {
+async function getResultPages(query: string, numberOfResults?: number): Promise<SerpResponse> {
   if (!query || query.length === 0) {
     throw new Error('Query cannot be null.');
   }
 
   const queryParams: QueryParams = {
     q: query,
-    start: startIndex || 0,
+    start: 0,
     size: numberOfResults || global.stareOptions.numberOfResults
   };
 
@@ -73,53 +66,28 @@ export async function scrape(query: string, startIndex: number, numberOfResults?
 
   try {
     const awsSearchCloudResult: SearchCloudResponse = await axios.get(searchUrl);
-    return awsSearchCloudResult;
+
+    const formattedResponse: SerpResponse = {
+      totalResults: awsSearchCloudResult.hits.found,
+      searchTerms: query,
+      numberOfItems: awsSearchCloudResult.hits.hit.length,
+      startIndex: awsSearchCloudResult.hits.start + 1,
+      documents: []
+    };
+
+    // Extract the documents relevant info for Stare.js
+    formattedResponse.documents = awsSearchCloudResult.hits.hit.map((item: SearchCloudHit) => ({
+      title: _.get(item, TITLE_PROPERTY, ''),
+      link: _.get(item, LINK_PROPERTY as any, null),
+      body: _.get(item, BODY_PROPERTY, null),
+      snippet: _.get(item, SNIPPET_PROPERTY, ''),
+      image: _.get(item, IMAGE_PROPERTY)
+    }));
+
+    return formattedResponse;
   } catch (err) {
     throw err;
   }
-}
-
-/**
- * Process the raw SearchCloud response and return a standard SerpResponse.
- * @param {SearchCloudResponse} awsSearchCloudResult Raw SearchCloud response.
- * @param {string} query The search query.
- * @returns {Promise<SerpResponse>} Standardized SerpResponse.
- */
-export async function processResponse(awsSearchCloudResult: SearchCloudResponse, query: string): Promise<SerpResponse> {
-  const formattedResponse: SerpResponse = {
-    totalResults: awsSearchCloudResult.hits.found,
-    searchTerms: query,
-    numberOfItems: awsSearchCloudResult.hits.hit.length,
-    startIndex: awsSearchCloudResult.hits.start + 1,
-    documents: []
-  };
-
-  // Extract the documents relevant info for Stare.js
-  formattedResponse.documents = awsSearchCloudResult.hits.hit.map((item: SearchCloudHit) => ({
-    title: _.get(item, TITLE_PROPERTY, ''),
-    link: _.get(item, LINK_PROPERTY as any, null),
-    body: _.get(item, BODY_PROPERTY, null),
-    snippet: _.get(item, SNIPPET_PROPERTY, ''),
-    image: _.get(item, IMAGE_PROPERTY)
-  }));
-
-  return formattedResponse;
-}
-
-/**
- * Get the SERP from AWS Search Cloud and returns an object with the StArE.js standard format.
- *
- * The documentation for the search options can be found here:
- * https://docs.aws.amazon.com/cloudsearch/latest/developerguide/search-api.html
- *
- * @async
- * @param {string} query The search query.
- * @param {number} numberOfResults Number of documents to get from the SERP.
- * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from AWS Search Cloud.
- */
-async function getResultPages(query: string, numberOfResults?: number): Promise<SerpResponse> {
-  const awsSearchCloudResult = await scrape(query, 0, numberOfResults);
-  return processResponse(awsSearchCloudResult, query);
 }
 
 export default getResultPages;

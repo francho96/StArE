@@ -21,11 +21,11 @@ interface SolrOptions {
 try {
   const stareOptions = global.stareOptions;
   if (!_.has(stareOptions, 'solr') ||
-    !_.has(stareOptions.solr, 'baseUrl') ||
-    !_.has(stareOptions.solr, 'core') ||
-    !_.has(stareOptions.solr, 'titleProperty') ||
-    !_.has(stareOptions.solr, 'snippetProperty') ||
-    !_.has(stareOptions.solr, 'imageProperty')) {
+      !_.has(stareOptions.solr, 'baseUrl') ||
+      !_.has(stareOptions.solr, 'core') ||
+      !_.has(stareOptions.solr, 'titleProperty') ||
+      !_.has(stareOptions.solr, 'snippetProperty') ||
+      !_.has(stareOptions.solr, 'imageProperty')) {
     throw new Error("NO_SOLR_OPTIONS");
   }
 } catch (e) {
@@ -49,13 +49,15 @@ interface QueryParams {
 }
 
 /**
- * Scrape the Solr search results.
+ * Get the SERP from Solr and returns an object with the StArE.js standard format.
+ *
+ * @async
  * @param {string} query The search query.
- * @param {number} startIndex Start index for pagination.
- * @param {number} numberOfResults Number of results to return.
- * @returns {Promise<SolrResponse>} Raw Solr response.
+ * @param {number} startIndex Number of leading documents to skip.
+ * @param {number} numberOfResults Number of documents to get from the SERP.
+ * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from Solr.
  */
-export async function scrape(query: string, startIndex: number, numberOfResults?: number): Promise<SolrResponse> {
+async function getResultPages(query: string, startIndex: number, numberOfResults?: number): Promise<SerpResponse> {
   if (!query || query.length === 0) {
     throw new Error('Query cannot be null.');
   }
@@ -76,50 +78,28 @@ export async function scrape(query: string, startIndex: number, numberOfResults?
 
   try {
     const response: SolrResponse = await axios.get(searchUrl);
-    return response;
+
+    const formattedResponse: SerpResponse = {
+      totalResults: response.data.response.numFound,
+      searchTerms: response.data.responseHeader.params.q,
+      numberOfItems: response.data.response.docs.length,
+      startIndex: response.data.response.start,
+      documents: []
+    };
+
+    // Extract the documents relevant info for Stare.js
+    formattedResponse.documents = response.data.response.docs.map((item: SolrResponseDoc) => ({
+      title: _.get(item, TITLE_PROPERTY, ''),
+      link: _.get(item, LINK_PROPERTY as any, null),
+      body: _.get(item, BODY_PROPERTY as any, null),
+      snippet: _.get(item, SNIPPET_PROPERTY, ''),
+      image: _.get(item, IMAGE_PROPERTY)
+    }));
+
+    return formattedResponse;
   } catch (err) {
     throw err;
   }
-}
-
-/**
- * Process the raw Solr response and return a standard SerpResponse.
- * @param {SolrResponse} response Raw Solr response.
- * @returns {Promise<SerpResponse>} Standardized SerpResponse.
- */
-export async function processResponse(response: SolrResponse): Promise<SerpResponse> {
-  const formattedResponse: SerpResponse = {
-    totalResults: response.data.response.numFound,
-    searchTerms: response.data.responseHeader.params.q,
-    numberOfItems: response.data.response.docs.length,
-    startIndex: response.data.response.start,
-    documents: []
-  };
-
-  // Extract the documents relevant info for Stare.js
-  formattedResponse.documents = response.data.response.docs.map((item: SolrResponseDoc) => ({
-    title: _.get(item, TITLE_PROPERTY, ''),
-    link: _.get(item, LINK_PROPERTY as any, null),
-    body: _.get(item, BODY_PROPERTY as any, null),
-    snippet: _.get(item, SNIPPET_PROPERTY, ''),
-    image: _.get(item, IMAGE_PROPERTY)
-  }));
-
-  return formattedResponse;
-}
-
-/**
- * Get the SERP from Solr and returns an object with the StArE.js standard format.
- *
- * @async
- * @param {string} query The search query.
- * @param {number} startIndex Number of leading documents to skip.
- * @param {number} numberOfResults Number of documents to get from the SERP.
- * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from Solr.
- */
-async function getResultPages(query: string, startIndex: number, numberOfResults?: number): Promise<SerpResponse> {
-  const response = await scrape(query, startIndex, numberOfResults);
-  return processResponse(response);
 }
 
 export default getResultPages;

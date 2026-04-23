@@ -92,9 +92,9 @@ function sortApiResults(responses: GoogleSearchResponse[]): GoogleDocument[] {
  * @async
  * @param {string} query The search query.
  * @param {number} numberOfResults Number of documents to get from the SERP.
- * @returns {Promise<GoogleSearchResponse[]>} Promise object with the raw Google API responses.
+ * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from Google.
  */
-export async function scrape(query: string, startIndex: number, numberOfResults?: number): Promise<GoogleSearchResponse[]> {
+async function getResultPages(query: string, numberOfResults?: number): Promise<SerpResponse> {
   if (!query || query.length === 0) {
     throw new Error('Query cannot be null.');
   }
@@ -106,59 +106,38 @@ export async function scrape(query: string, startIndex: number, numberOfResults?
   const finalNumberOfResults = resultsCount > MAX_GOOGLE_API_DOCUMENTS ? MAX_GOOGLE_API_DOCUMENTS : resultsCount;
 
   const searchRequests: Promise<GoogleSearchResponse>[] = [];
-  let start = (startIndex || 0) + 1;
+  let start = 1;
   let remainingResults = finalNumberOfResults;
-  let page = 0; // Using 0-indexed page offset logic for calculation if needed, but here start is explicit
+  let page = 1;
 
   while (remainingResults > 0) {
     const num = remainingResults > MAX_PER_REQUEST ? MAX_PER_REQUEST : remainingResults;
     searchRequests.push(searchWithGoogleApi(query, start, num));
     remainingResults -= num;
-    start += num;
+    start = (MAX_PER_REQUEST * page) + 1;
+    page++;
   }
 
   try {
     const responses = await Promise.all(searchRequests);
-    return responses;
+    const items = sortApiResults(responses);
+
+    // All the request will resolve the same headers, so it doesn't
+    // matter which one we use.
+    const googleResult = _.get(responses[0], 'data');
+
+    const formattedResponse: SerpResponse = {
+      totalResults: googleResult!.searchInformation.formattedTotalResults,
+      searchTerms: googleResult!.queries!.request[0]!.searchTerms,
+      numberOfItems: items.length,
+      startIndex: googleResult!.queries!.request[0]!.startIndex,
+      documents: items
+    };
+
+    return formattedResponse;
   } catch (err) {
     throw err;
   }
-}
-
-/**
- * Process the raw Google API responses and return a StArE.js formatted SERP response.
- * @param {GoogleSearchResponse[]} responses Array of Google API responses
- * @returns {Promise<SerpResponse>} Standardized SERP response
- */
-export async function processResponse(responses: GoogleSearchResponse[]): Promise<SerpResponse> {
-  const items = sortApiResults(responses);
-
-  // All the request will resolve the same headers, so it doesn't
-  // matter which one we use.
-  const googleResult = _.get(responses[0], 'data');
-
-  const formattedResponse: SerpResponse = {
-    totalResults: googleResult!.searchInformation.formattedTotalResults,
-    searchTerms: googleResult!.queries!.request[0]!.searchTerms,
-    numberOfItems: items.length,
-    startIndex: googleResult!.queries!.request[0]!.startIndex,
-    documents: items
-  };
-
-  return formattedResponse;
-}
-
-/**
- * Get the SERP from Google and returns an object with the StArE.js standard format.
- *
- * @async
- * @param {string} query The search query.
- * @param {number} numberOfResults Number of documents to get from the SERP.
- * @returns {Promise<SerpResponse>} Promise object with the standarized StArE.js formatted SERP response from Google.
- */
-async function getResultPages(query: string, numberOfResults?: number): Promise<SerpResponse> {
-  const responses = await scrape(query, 1, numberOfResults);
-  return processResponse(responses);
 }
 
 export default getResultPages;

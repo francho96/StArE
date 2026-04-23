@@ -81,7 +81,6 @@ export interface StareDocument {
     link: string | null;
     body?: string | null;
     htmlCode?: string | null;
-    metrics?: any;
     snippet?: string | null;
     image?: string | null;
 }
@@ -142,7 +141,6 @@ export interface BingDocument {
     link: string;
     snippet: string;
     image?: any;
-    metrics?: any;
 }
 
 export interface BingWebPage {
@@ -167,7 +165,6 @@ export interface EcosiaDocument {
     link: string;
     snippet: string;
     image: string;
-    metrics?: any;
 }
 
 export interface ElasticsearchDocument {
@@ -175,7 +172,6 @@ export interface ElasticsearchDocument {
     link: string | null;
     body: string | null;
     snippet: string;
-    metrics?: any;
     image?: any;
 }
 
@@ -196,7 +192,6 @@ export interface GoogleDocument {
     title: string;
     link: string;
     snippet: string;
-    metrics?: any;
     image?: string;
 }
 
@@ -231,52 +226,50 @@ export interface GoogleSearchResponse {
 }
 
 export interface SearchCloudDocument {
-    title: string;
-    link: string | null;
-    body: string | null;
-    snippet: string;
-    metrics?: any;
-    image?: any;
+  title: string;
+  link: string | null;
+  body: string | null;
+  snippet: string;
+  image?: any;
 }
 
 export interface SearchCloudHit {
-    [key: string]: any;
+  [key: string]: any;
 }
 
 export interface SearchCloudResponse {
-    hits: {
-        found: number;
-        start: number;
-        hit: SearchCloudHit[];
-    };
+  hits: {
+    found: number;
+    start: number;
+    hit: SearchCloudHit[];
+  };
 }
 
 interface SolrDocument {
-    title: string;
-    link: string | null;
-    body: string | null;
-    snippet: string;
-    metrics?: any;
-    image?: any;
+  title: string;
+  link: string | null;
+  body: string | null;
+  snippet: string;
+  image?: any;
 }
 
 export interface SolrResponseDoc {
-    [key: string]: any;
+  [key: string]: any;
 }
 
 export interface SolrResponse {
-    data: {
-        responseHeader: {
-            params: {
-                q: string;
-            };
-        };
-        response: {
-            numFound: number;
-            start: number;
-            docs: SolrResponseDoc[];
-        };
+  data: {
+    responseHeader: {
+      params: {
+        q: string;
+      };
     };
+    response: {
+      numFound: number;
+      start: number;
+      docs: SolrResponseDoc[];
+    };
+  };
 }
 
 
@@ -290,30 +283,30 @@ export interface SerpResponse {
 }
 
 export interface StareOptions {
-    engines: string[];
-    personalSERPs: { [key: string]: string };
-    personalMetrics: { [key: string]: string };
-    enableMultiCore: boolean;
-    workerThreads: number;
-    [key: string]: any;
+  engines: string[];
+  personalSERPs: { [key: string]: string };
+  personalMetrics: { [key: string]: string };
+  enableMultiCore: boolean;
+  workerThreads: number;
+  [key: string]: any;
 }
 
 export interface Partition {
-    startIndex: number;
-    numResults: number;
+  startIndex: number;
+  numResults: number;
 }
 
 export interface PartitionResult {
-    threads: number;
-    partitions: Partition[];
-    numPartitions: number;
+  threads: number;
+  partitions: Partition[];
+  numPartitions: number;
 }
 
 export interface WorkerData {
-    engine: string;
-    query: string;
-    startIndex: number;
-    numberOfResults: number;
-    metrics: string[];
-    opts: Partial<StareOptions>;
+  engine: string;
+  query: string;
+  startIndex: number;
+  numberOfResults: number;
+  metrics: string[];
+  opts: Partial<StareOptions>;
 }

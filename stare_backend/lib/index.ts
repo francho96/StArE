@@ -5,9 +5,6 @@ import { isMainThread, parentPort, threadId } from 'worker_threads';
 import debug from 'debug';
 import WorkerPool from './worker_pool';
 import { MetricResult, Partition, PartitionResult, StareOptions, WorkerData } from './interfaces';
-import * as scraper from './modules/scraper';
-import * as processor from './modules/processor';
-import * as metricsModule from './modules/metrics';
 
 const debugInstance = debug(`stare.js:server [Thread #${threadId}]`);
 
@@ -27,18 +24,18 @@ interface SerpResponse {
 
 
 type WebSearchFunction = (
-  engine: string,
-  query: string,
-  numberOfResults: number,
-  metrics: string[],
+  engine: string, 
+  query: string, 
+  numberOfResults: number, 
+  metrics: string[], 
   startIndex?: number
 ) => Promise<SerpResponse>;
 
 type WebSearchWorkerFunction = (
-  engine: string,
-  query: string,
-  startIndex: number,
-  numberOfResults: number,
+  engine: string, 
+  query: string, 
+  startIndex: number, 
+  numberOfResults: number, 
   metrics: string[]
 ) => Promise<SerpResponse>;
 
@@ -109,7 +106,7 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
      */
     const generatePartitions = (threads: number, numResults: number, startIndex: number): PartitionResult => {
       debugInstance(`Generating partitions with args threads [${threads}], numResults [${numResults}], startIndex [${startIndex}]`);
-
+      
       if (numResults < threads) {
         return {
           threads: 1,
@@ -121,7 +118,7 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
       const partitions: Partition[] = [];
       const partitionSize = Math.floor(numResults / threads);
       debugInstance(`using partition size [${partitionSize}]`);
-
+      
       let i = startIndex;
       while (partitions.length < threads) {
         if ((partitions.length === threads - 1) && (numResults % threads !== 0)) {
@@ -138,7 +135,7 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
         partitions.push({ startIndex: i, numResults: partitionSize });
         i += partitionSize;
       }
-
+      
       return {
         threads,
         partitions,
@@ -159,18 +156,18 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
      * @return {Promise<SerpResponse>} An object with the standardized result page (SERP)
      */
     const webSearch: WebSearchFunction = async (
-      engine: string,
-      query: string,
-      numberOfResults: number,
-      metrics: string[],
+      engine: string, 
+      query: string, 
+      numberOfResults: number, 
+      metrics: string[], 
       startIndex: number = 0
     ): Promise<SerpResponse> => {
       const threads = global.stareOptions.enableMultiCore ? Number(global.stareOptions.workerThreads) : 1;
       debugInstance(`using [${threads}] threads`);
-
+      
       const partitions = generatePartitions(threads, numberOfResults, startIndex);
       debugInstance("Initializing worker thread pool...");
-
+      
       const workerPool = new WorkerPool(partitions.threads, __filename);
       const promises: Promise<SerpResponse>[] = [];
 
@@ -183,10 +180,10 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
           metrics,
           opts
         };
-
-        debugInstance("Sending partition data %O", {
-          startIndex: data.startIndex,
-          numberOfResults: data.numberOfResults
+        
+        debugInstance("Sending partition data %O", { 
+          startIndex: data.startIndex, 
+          numberOfResults: data.numberOfResults 
         });
 
         promises.push(new Promise<SerpResponse>((resolve, reject) => {
@@ -218,7 +215,7 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
 
       serpResponse.documents = _.flatten(listOfListOfDocuments);
       workerPool.close();
-
+      
       return serpResponse;
     };
 
@@ -238,32 +235,39 @@ const stare = (opts: Partial<StareOptions> = {}): WebSearchFunction | WebSearchW
      * @return {Promise<SerpResponse>} An object with the standardized result page (SERP)
      */
     const webSearch_: WebSearchWorkerFunction = async (
-      engine: string,
-      query: string,
-      startIndex: number,
-      numberOfResults: number,
+      engine: string, 
+      query: string, 
+      startIndex: number, 
+      numberOfResults: number, 
       metrics: string[]
     ): Promise<SerpResponse> => {
-      if (!_.has(engines, engine)) {
-        throw new Error(`Search Engine '${engine}' not supported.`);
-      }
+      return new Promise<SerpResponse>((resolve, reject) => {
+        if (!_.has(engines, engine)) {
+          reject(`Search Engine '${engine}' not supported.`);
+          return;
+        }
 
-      const numResults = Number(numberOfResults);
-      const metricsArray = metrics || [];
+        const numResults = Number(numberOfResults);
+        const metricsArray = metrics || [];
 
-      // 1. Scrape
-      debugInstance(`[${engine}] Scraping...`);
-      const rawResult = await scraper.scrape(engine, query, startIndex, numResults);
+        const searchEngine = engines[engine];
 
-      // 2. Process
-      debugInstance(`[${engine}] Processing...`);
-      const processedResult = await processor.process(engine, rawResult, query, numResults);
-
-      // 3. Metrics
-      debugInstance(`[${engine}] Calculating metrics...`);
-      const finalResult = await metricsModule.calculate(processedResult, metricsArray);
-
-      return finalResult as any;
+        searchEngine(query, startIndex, numResults)
+          .then((formattedResponse: SerpResponse) => {
+            getMetrics(formattedResponse, metricsArray)
+              .then((values: MetricResult[]) => {
+                for (const response of values) {
+                  if (typeof formattedResponse.documents[response.index]!.metrics === 'undefined') {
+                    formattedResponse.documents[response.index]!.metrics = {};
+                  }
+                  formattedResponse.documents[response.index]!.metrics![response.name] = response.value;
+                }
+                resolve(formattedResponse);
+              })
+              .catch(err => reject(err));
+          })
+          .catch((err: any) => reject(err));
+      });
     };
 
     return webSearch_;
