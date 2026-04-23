@@ -1,99 +1,142 @@
-# StArE.js (Node.js Server version)
+# StArE.js (StArE Core)
 
-![npm](https://img.shields.io/npm/v/@stare.js/stare.js-server)
-![npm](https://img.shields.io/npm/dm/@stare.js/stare.js-server)
-[![Build Status](https://travis-ci.com/StArE-js/stare.js-server.svg?branch=master)](https://travis-ci.com/StArE-js/stare.js-server)
-[![Coverage Status](https://coveralls.io/repos/github/StArE-js/stare.js-server/badge.svg?branch=master)](https://coveralls.io/github/StArE-js/stare.js-server?branch=master)
-![NPM](https://img.shields.io/npm/l/@stare.js/stare.js-server)
+![npm](https://img.shields.io/npm/v/@francho96/stare)
+![license](https://img.shields.io/npm/l/@francho96/stare)
+![typescript](https://img.shields.io/badge/Language-TypeScript-blue)
+[![Build Status](https://travis-ci.com/francho96/StArE.svg?branch=master)](https://github.com/francho96/StArE)
+[![Coverage Status](https://coveralls.io/repos/github/francho96/StArE/badge.svg?branch=master)](https://coveralls.io/github/francho96/StArE?branch=master)
 
-## Description
-StArE.js is an open source project intended to facilitate developers the creation of alternative visualizations of search engine results page (SERP). StArE.js provides a modular and extensible processing pipeline capable of (1) transforming SERP, (2) extracting features from individual search results, and (3) visualizing SERP in multiple ways.
+**StArE.js** (Search Engine Results Evaluator) is an open-source research-oriented library designed to facilitate the creation of alternative visualizations and evaluations of Search Engine Results Pages (SERP). 
 
-## Installation
+It provides a modular and extensible processing pipeline capable of:
+1.  **Transforming SERP** from multiple search engines into a common format.
+2.  **Extracting features** and downloading HTML content from individual search results.
+3.  **Calculating metrics** (reading ease, multimedia count, keyword positions, etc.) on-the-fly.
+
+---
+
+## 🚀 Installation
 
 ```bash
-npm i @stare.js/stare.js-server
-```
-## How to use
-
-```js
-const stare = require('@stare.js/stare.js-server')({...options});
-
-stare('google', 'What is love?', 10, ['ranking', 'language'])
-  .then(result => {
-    console.log(result);
-  })
-  .catch(err => {
-    console.error(err);
-  });
+npm install @francho96/stare
 ```
 
-Where the arguments of the funtction are:
+## 🛠️ Quick Start
 
-| Argument | Type | Description |
-| ----- | ----- | ----- |
-| engine | <code>String</code> | Search Engine to use (requires previous configuration for some cases) |
-| query |<code>String</code> | Search Query (self explanatory)
-| number of results to show | <code>Number</code> | Maximun numbers of documents/results to get from the engine |
-| metrics | <code>Array</code> | Metrics to get from each document |
+### TypeScript
+```typescript
+import stare from '@francho96/stare';
 
-You can find the most basic full example in the [examples folder](/examples/).
+const stareInstance = stare({
+  engines: ['google', 'ecosia'],
+  google: {
+    apiKey: 'YOUR_GOOGLE_API_KEY',
+    apiCx: 'YOUR_GOOGLE_CX'
+  }
+});
 
-## Resources
-
-* [npm package](https://www.npmjs.com/package/@stare.js/stare.js-server)
-* [Documentation](/docs/)
-* [Examples](/examples/)
-
-## Extensions
-
-StArE.js is currently extended with the following plugins:
-
-### SERPs
-
-| SERP | Function name | Description | Documentation |
-| ------ | ------ | ------ | ------ |
-| Google | <code>google</code> | Handler for SERPs obtained through the Google Custom Search JSON API | [See docs](/docs/SERP.md#google) |
-| Bing | <code>bing</code> | Handler for SERPs obtained through the Bing web search API | [See docs](/docs/SERP.md#bing) |
-| Ecosia | <code>ecosia</code> | Handler for SERPs obtained from ecosia through a web scrapper | [See docs](/docs/SERP.md#ecosia) |
-| ElasticSearch | <code>elasticsearch</code> | Handler for SERPs obtained from ElasticSearch (only basic support) via request-promise | [See docs](/docs/SERP.md#elasticsearch) |
-| Solr | <code>solr</code> | Handler for SERPs obtained from Solr (only basic support) via request-promise | [See docs](/docs/SERP.md#solr) |
-| AWS Search Cloud | <code>searchcloud</code> | Handler for SERPs obtained from AWS Search Cloud (only basic support) via request-promise | [See docs](/docs/SERP.md#searchcloud) |
-
-| Metrics | Metric name | Description | Documentation |
-| ------ | ------ | ------ | ------ |
-| Perspicuity | <code>perspicuity</code> | Reading Ease for English and Perspicuity for Spanish | [See docs](/docs/METRICS.md#perspicuity) |
-| Language | <code>language</code> | Detect the most probable language for a document | [See docs](/docs/METRICS.md#language) |
-| Length of Documents | <code>length</code> | Calculate the length in characters of a Document | [See docs](/docs/METRICS.md#length) |
-| Ranking | <code>ranking</code> | Calculate the length in characters of a Document | [See docs](/docs/METRICS.md#ranking) |
-| Keywords Position | <code>keywords-position</code> | Gets the position of the query terms (keywords) inside the text body of the document | [See docs](/docs/METRICS.md#keywords-position) |
-| Links | <code>links</code> | Gets the relation between the documents based on the url that the text body contains. Only for HTML documents. | [See docs](/docs/METRICS.md#links) |
-| Multimedia | <code>multimedia</code> | Gets the amount of multimedia data on the document (audio, video, images) that the text body contains. Only for HTML documents. | [See docs](/docs/METRICS.md#multimedia) |
-
-As is explained in the docs you can create your own extensions for [SERP](/docs/SERP.md#create-your-own-extensions) and [metrics](/docs/METRICS.md#create-your-own-extensions) support.
-
-Please read the full documentation [here](/docs/INDEX.md).
-
-## Debug / Logging
-
-StArE.js is powered by [debug](https://github.com/visionmedia/debug).
-In order to see all the debug output, run your app with the environment variable
-`DEBUG` including the desired scope.
-
-To see the output from all of StArE.js's debugging scopes you can use:
-
-```
-DEBUG=stare.js
+stareInstance.search('google', 'open source', 10, ['ranking', 'language'])
+  .then(result => console.log(result))
+  .catch(err => console.error(err));
 ```
 
-## Contributors
+### JavaScript (ESM or CommonJS)
+```javascript
+// CommonJS
+const stare = require('@francho96/stare').default;
 
-- [Roberto González-Ibáñez](https://github.com/rgonzal/)
-- [Camila Márquez](https://github.com/bellyster/)
-- [Daniel Gacitúa](https://github.com/dgacitua/)
-- [Franz Farbinger](https://github.com/DarkAnimat/)
-- [Diego Salazar S.](https://github.com/d-salazar-se/)
+const stareInstance = stare({ /* options */ });
+// ... use stareInstance.search
+```
 
-## License
+---
+
+## 🏗️ Core Architecture
+
+StArE.js follows a 3-step pipeline which can be executed as a whole or in individual stages:
+
+1.  **Scraper**: Queries a SERP engine and (optionally) downloads the full HTML content of each result.
+2.  **Parser**: Extracts clean body text and metadata from the scraped HTML.
+3.  **Metrics**: Calculates quantitative and qualitative metrics on the results.
+
+### Multi-Core Support
+StArE can leverage Node.js Worker Threads to parallelize the scraping and metric calculation process, significantly improving performance for large result sets.
+
+```javascript
+const stareInstance = stare({
+  enableMultiCore: true,
+  workerThreads: 4 // Number of worker threads
+});
+```
+
+---
+
+## 📖 API Reference
+
+### `stare(options: StareOptions)`
+Initializes the StArE instance.
+
+| Option | Type | Description |
+| :--- | :--- | :--- |
+| `engines` | `string[]` | List of enabled search engines. |
+| `enableMultiCore` | `boolean` | Enable parallel processing via worker threads. |
+| `workerThreads` | `number` | Number of threads to use (default: CPU cores). |
+| `requestTimeout` | `number` | Timeout for HTTP requests in ms. |
+| `personalSERPs` | `object` | Map of custom SERP handler paths. |
+| `personalMetrics` | `object` | Map of custom metric module paths. |
+
+### `instance.search(engine, query, nResults, metrics, startIndex)`
+Executes the full pipeline (SERP query + Scraping + Parsing + Metrics).
+
+### `instance.scraper(engine, query, nResults, startIndex)`
+Only performs the SERP query and fetches the HTML of the results.
+
+### `instance.parser(serpResponse)`
+Extracts body text from a previously scraped `serpResponse`.
+
+### `instance.metrics(serpResponse, metricsList)`
+Calculates metrics on a `serpResponse`.
+
+---
+
+## 🔌 Extensions
+
+### Supported SERPs
+| Engine | Key | Requires |
+| :--- | :--- | :--- |
+| **Google** | `google` | API Key & CX |
+| **Bing** | `bing` | Service Key |
+| **Ecosia** | `ecosia` | - (Scraper) |
+| **ElasticSearch** | `elasticsearch` | Base URL & Index |
+| **Solr** | `solr` | Base URL & Core |
+| **AWS Search** | `searchcloud` | Endpoint |
+
+### Supported Metrics
+| Metric | Key | Description |
+| :--- | :--- | :--- |
+| **Ranking** | `ranking` | Original position in the search engine. |
+| **Language** | `language` | Detects document language. |
+| **Length** | `length` | Character and word count. |
+| **Perspicuity** | `perspicuity` | Reading ease (English & Spanish). |
+| **Multimedia** | `multimedia` | Count of images, audio, and video. |
+| **Links** | `links` | Internal and external link analysis. |
+| **Keyword Position** | `keywords-position` | Map of query terms within the document. |
+
+---
+
+## 🧪 Development & Debugging
+
+Enable debug logs by setting the `DEBUG` environment variable:
+
+```bash
+DEBUG=stare.js:* npm start
+```
+
+For more detailed information, please refer to the [official documentation](/docs/INDEX.md).
+
+## 🤝 Contributing
+Feel free to open issues or submit pull requests. Check the [examples](/examples/) folder for inspiration on how to build custom metrics or SERP handlers.
+
+## 📄 License
 [MIT](LICENSE)
 

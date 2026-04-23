@@ -115,20 +115,52 @@ function StArESearch({
               sx={
                 loading
                   ? { ...cardSx, ...cardSxDisabled }
-                  : { ...cardSx, borderColor: selectedOption == 0 ? 'red' : '' }
+                  : {
+                      ...cardSx,
+                      borderColor:
+                        selectedOption == 0 ? theme.palette.primary.main : '',
+                    }
               }
               onClick={() => setSelectedOption(0)}
             >
-              Burbujas
-              <BubbleChartIcon color="disabled" />
+              General
+              <BubbleChartIcon
+                color={selectedOption == 0 ? 'primary' : 'disabled'}
+              />
             </Card>
-            <Card sx={cardSxDisabled} onClick={() => setSelectedOption(0)}>
-              Barras
-              <BarChartIcon color="disabled" />
+            <Card
+              sx={
+                loading
+                  ? { ...cardSx, ...cardSxDisabled }
+                  : {
+                      ...cardSx,
+                      borderColor:
+                        selectedOption == 1 ? theme.palette.primary.main : '',
+                    }
+              }
+              onClick={() => setSelectedOption(1)}
+            >
+              Longitud
+              <BarChartIcon
+                color={selectedOption == 1 ? 'primary' : 'disabled'}
+              />
             </Card>
-            <Card sx={cardSxDisabled} onClick={() => setSelectedOption(0)}>
-              Torta
-              <PieChartIcon color="disabled" />
+            <Card
+              sx={
+                loading
+                  ? { ...cardSx, ...cardSxDisabled }
+                  : {
+                      ...cardSx,
+                      borderColor:
+                        selectedOption == 2 ? theme.palette.primary.main : '',
+                    }
+              }
+              onClick={() => setSelectedOption(2)}
+            >
+              Idiomas
+              <PieChartIcon
+                color={selectedOption == 2 ? 'primary' : 'disabled'}
+              />
             </Card>
           </Box>
         </>

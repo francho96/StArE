@@ -1,6 +1,6 @@
 {
-  "name": "@stare.js/stare.js-server",
-  "version": "2.0.0",
+  "name": "@francho96/stare",
+  "version": "1.0.0",
   "description": "Node.js SERP visualization server with TypeScript",
   "keywords": [
     "server",
@@ -9,7 +9,8 @@
     "search",
     "metrics"
   ],
-  "main": "dist/stare.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist/",
     "LICENSE",
@@ -26,16 +27,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/StArE-js/stare.js-server.git"
+    "url": "git+https://github.com/francho96/StArE.git"
   },
   "contributors": [
-    "Diego Salazar S. <diego.salazar.se@usach.cl>"
+    {
+      "name": "Franco Barria Rosas",
+      "email": "franco.barria@usach.cl"
+    }
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/StArE-js/stare.js-server/issues"
+    "url": "https://github.com/francho96/StArE/issues"
   },
-  "homepage": "https://github.com/StArE-js/stare.js-server#readme",
+  "homepage": "https://github.com/francho96/StArE#readme",
   "dependencies": {
     "axios": "^1.7.9",
     "cheerio": "^1.1.2",
@@ -85,7 +89,7 @@
     "lib": "lib",
     "test": "test"
   },
-  "author": "d-salazar-se",
+  "author": "francho96",
   "engines": {
     "node": ">=14.0.0"
   }

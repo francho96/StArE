@@ -9,16 +9,21 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 
-import MailIcon from '@mui/icons-material/Mail';
 import BubbleChartIcon from '@mui/icons-material/BubbleChart';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import PieChartIcon from '@mui/icons-material/PieChart';
 import StArE from './StArE';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import { useThemeMode } from '../theme/ThemeProvider';
 import { useTheme } from '@mui/material/styles';
 import { useCallHistory } from '../hooks/useCallHistory';
-import { clearResult, setLoading, setResultData } from '../redux/slices/resultSlice';
+import {
+  clearResult,
+  setLoading,
+  setResultData,
+  setVisualType,
+} from '../redux/slices/resultSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDocuments } from '../calls/google-fetch';
 import { isAxiosError } from 'axios';
@@ -28,13 +33,9 @@ interface DrawerList {
 }
 
 export default function DrawerList({ toggleDrawer }: DrawerList) {
-  const { mode, toggleMode } = useThemeMode();
-
   const dispatch = useDispatch();
 
-
   const loading = useSelector((state: any) => state.result.loading);
-
 
   const handleSearch = async (query: string) => {
     dispatch(setLoading(true));
@@ -51,6 +52,7 @@ export default function DrawerList({ toggleDrawer }: DrawerList) {
     dispatch(setLoading(false));
   };
 
+  const { toggleMode } = useThemeMode();
   const theme = useTheme();
   const { history, clearHistory } = useCallHistory();
   return (
@@ -61,7 +63,11 @@ export default function DrawerList({ toggleDrawer }: DrawerList) {
       onClick={() => toggleDrawer(false)}
     >
       <Box display={'flex'} justifyContent={'end'}>
-        <IconButton sx={{ ml: 1 }} onClick={() => loading ? null : toggleMode()} color="inherit">
+        <IconButton
+          sx={{ ml: 1 }}
+          onClick={() => (loading ? null : toggleMode())}
+          color="inherit"
+        >
           {theme.palette.mode === 'dark' ? (
             <Brightness7 color="disabled" />
           ) : (
@@ -96,8 +102,11 @@ export default function DrawerList({ toggleDrawer }: DrawerList) {
       <Divider />
 
       <List>
-        <ListItem disablePadding >
-          <ListItemButton disabled={loading} onClick={() => loading ? null : dispatch(clearResult())}>
+        <ListItem disablePadding>
+          <ListItemButton
+            disabled={loading}
+            onClick={() => (loading ? null : dispatch(clearResult()))}
+          >
             <ListItemIcon>
               <AddIcon />
             </ListItemIcon>
@@ -112,18 +121,30 @@ export default function DrawerList({ toggleDrawer }: DrawerList) {
           </Box>
         ) : (
           <>
-            {history.map((text, index) => (
-              <ListItem key={text} disablePadding  >
-                <ListItemButton disabled={loading} onClick={() => loading ? null : handleSearch(text)}>
+            {history.map((record, index) => (
+              <ListItem key={`${record.query}-${index}`} disablePadding>
+                <ListItemButton
+                  disabled={loading}
+                  onClick={() => {
+                    if (loading) return;
+                    // Restore visual type in redux
+                    dispatch(setVisualType(record.type));
+                    // Trigger search
+                    handleSearch(record.query);
+                  }}
+                >
                   <ListItemIcon>
-                    {/* {index % 2 === 0 ? <BubbleChartIcon /> : <BarChartIcon />}*/}
-                    <BubbleChartIcon />
+                    {record.type === 0 && <BubbleChartIcon />}
+                    {record.type === 1 && <BarChartIcon />}
+                    {record.type === 2 && <PieChartIcon />}
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      text?.length > 12 ? `${text.slice(0, 12)}...` : text
+                      record.query?.length > 12
+                        ? `${record.query.slice(0, 12)}...`
+                        : record.query
                     }
-                    primaryTypographyProps={{ title: text }}
+                    primaryTypographyProps={{ title: record.query }}
                   />
                 </ListItemButton>
               </ListItem>

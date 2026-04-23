@@ -1,15 +1,11 @@
-import Button from '@mui/material/Button';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import DrawerList from './components/Drawer';
 import Drawer from '@mui/material/Drawer';
 import { useState } from 'react';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import { useThemeMode } from './theme/ThemeProvider';
 import { useTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import StArE from './components/StArE';
 import Box from '@mui/material/Box';
@@ -42,17 +38,12 @@ function App(props: Props) {
   };
 
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
-
-  const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen);
-  };
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <div>
+    <Box sx={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
       <CallHistoryProvider>
         <Box display={'flex'}>
           <Drawer
@@ -74,7 +65,7 @@ function App(props: Props) {
               },
             }}
           >
-            <DrawerList toggleDrawer={toggleDrawer} />
+            <DrawerList toggleDrawer={handleDrawerToggle} />
           </Drawer>
           <Drawer
             variant="permanent"
@@ -87,15 +78,17 @@ function App(props: Props) {
             }}
             open
           >
-            <DrawerList toggleDrawer={toggleDrawer} />
+            <DrawerList toggleDrawer={handleDrawerToggle} />
           </Drawer>
           <AppBar
+            position="fixed"
             sx={{
               display: { sm: 'none' },
               height: 60,
               backgroundColor: theme.palette.mode === 'dark' ? '#222' : '#fff',
               width: { sm: `calc(100% - ${drawerWidth}px)` },
               ml: { sm: `${drawerWidth}px` },
+              color: theme.palette.text.primary,
             }}
           >
             <Toolbar
@@ -120,18 +113,24 @@ function App(props: Props) {
         </Box>
 
         <Box
+          component="main"
           sx={{
             padding: '1rem',
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
-            height: { sm: 1 },
+            flexGrow: 1,
             ml: { sm: `${drawerWidth}px` },
-            mt: { sm: `60px` },
+            mt: { xs: `60px`, sm: 0 },
+            display: 'flex',
+            flexDirection: 'column',
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            minHeight: { xs: 'calc(100dvh - 60px)', sm: '100dvh' },
+            boxSizing: 'border-box',
+            overflow: 'auto',
           }}
         >
           <Outlet />
         </Box>
       </CallHistoryProvider>
-    </div>
+    </Box>
   );
 }
 
