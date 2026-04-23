@@ -32,7 +32,7 @@ for (const metric in global.stareOptions.personalMetrics) {
  * @param {string[]} metrics An array of strings with the names of the desired metrics.
  * @returns {Promise<any[]>} A promise with all the resolved metrics.
  */
-async function getMetrics(serpResponse: SerpResponse, metrics: string[]): Promise<any[]> {
+async function getMetrics(serpResponse: SerpResponse, metrics: string[], skipScraping: boolean = false): Promise<any[]> {
   const promises: Promise<any>[] = [];
   debugInstance(metrics)
   if (metrics.length === 0 || _.isEmpty(serpResponse)) {
@@ -59,9 +59,9 @@ async function getMetrics(serpResponse: SerpResponse, metrics: string[]): Promis
       debugInstance(`Error loading metric '${metric}': ${error}`);
     }
   }
-  // Download the HTML code if scraping is required
+  // Download the HTML code if scraping is required and not already done
   let processedSerpResponse = { ...serpResponse };
-  if (scrappingRequired) {
+  if (scrappingRequired && !skipScraping) {
 
     processedSerpResponse.documents = await allDocsHtmlCode(serpResponse);
   }
@@ -92,7 +92,7 @@ async function getMetrics(serpResponse: SerpResponse, metrics: string[]): Promis
         if (typeof metricModule.calculate === 'function') {
           const doc = processedSerpResponse.documents?.[index];
           if (doc) {
-            
+
             promises.push(metricModule.calculate(doc, opts));
 
           } else {

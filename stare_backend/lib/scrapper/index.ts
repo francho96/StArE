@@ -49,8 +49,8 @@ function extractBody(stareDocument: StareDocument): string {
   }
 
   const htmlCode = _.get(stareDocument, "htmlCode", "");
-  if (htmlCode !== "") {
-    const $ = cheerio.load(stareDocument.htmlCode as string);
+  if (htmlCode !== "" && typeof htmlCode === "string") {
+    const $ = cheerio.load(htmlCode);
     // TODO: Remove <script> & <style> tags in between?
     return $('body').text().trim();
   }
@@ -81,10 +81,10 @@ async function allDocsHtmlCode(serpResponse: SerpResponse): Promise<StareDocumen
         const customScraperPath = path.resolve(process.cwd(), global.stareOptions.customScraper);
         debugInstance(customScraperPath)
         const customScraperModule = await import(customScraperPath);
-        
+
         getHtml = customScraperModule.default || customScraperModule;
         opts = global.stareOptions.customScraperOpts || {};
-        
+
         debugInstance("Using custom scrapper: %s with Opts %O", customScraperPath, opts);
       } catch (importError) {
         debugInstance(`Failed to load custom scraper: ${importError}`);
@@ -97,7 +97,7 @@ async function allDocsHtmlCode(serpResponse: SerpResponse): Promise<StareDocumen
           debugInstance(`Invalid document: ${JSON.stringify(doc)}`);
           return doc;
         }
-        
+
         const htmlCode = await getHtml(doc, opts);
         return { ...doc, htmlCode: htmlCode || null };
       } catch (e) {
@@ -118,7 +118,7 @@ async function allDocsHtmlCode(serpResponse: SerpResponse): Promise<StareDocumen
       Promise.all(dlPromises),
       timeoutPromise
     ]);
-    
+
   } catch (error) {
     debugInstance(`Critical error in allDocsHtmlCode: ${error}`);
     return serpResponse.documents?.map(doc => ({ ...doc, htmlCode: null })) || [];

@@ -64,8 +64,8 @@ async function getResultPages(query: string, numberOfResults: number): Promise<S
       startIndex,
       documents
     };
-  } catch (err) {
-    throw err;
+  } catch (err: any) {
+    throw new Error(err.message || err);
   }
 }
 

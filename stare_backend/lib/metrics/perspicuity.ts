@@ -99,8 +99,22 @@ function words(text: string): number {
 async function calculate(stareDocument: StareDocument, opts: CalculateOptions): Promise<MetricResult> {
   try {
     const text = extractBody(stareDocument);
-    const detectedLanguage = lngDetector.detect(text, 1)[0]![0];
-    const language = _.get(SUPPORTED_LANGUAGES, detectedLanguage, null);
+
+    if (!text || text.trim().length === 0) {
+      return {
+        name: 'perspicuity',
+        index: opts.index,
+        value: {
+          code: -1,
+          message: 'Empty or null text content'
+        }
+      };
+    }
+
+    const detections = lngDetector.detect(text, 1);
+    const firstDetection = detections && detections.length > 0 ? detections[0] : null;
+    const detectedLanguage = firstDetection ? firstDetection[0] : null;
+    const language = detectedLanguage ? _.get(SUPPORTED_LANGUAGES, detectedLanguage, null) : null;
 
     if (!language) {
       return {
@@ -108,7 +122,9 @@ async function calculate(stareDocument: StareDocument, opts: CalculateOptions): 
         index: opts.index,
         value: {
           code: -1,
-          message: 'Language not supported'
+          message: detectedLanguage
+            ? `Language '${detectedLanguage}' not supported for perspicuity metric`
+            : 'Could not detect language of the document text'
         }
       };
     }

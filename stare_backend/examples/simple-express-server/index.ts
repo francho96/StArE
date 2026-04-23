@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import debug from 'debug';
+import { isMainThread } from 'worker_threads';
 import express from 'express';
 import cors from 'cors';
 import figlet from 'figlet';
@@ -67,11 +68,11 @@ const myMetrics = {
 };
 
 const mySERPs = {
-  personalSERP: './my-serps/my-serp'
+  mock: './my-serps/mock'
 };
 
-const stare = require('../../dist').default({
-  engines: ['google'],
+const stareInstance = require('../../dist').default({
+  engines: ['google', 'solr', 'mock'],
   enableMultiCore: (process.env.ENABLE_MULTI_CORE === 'true') || false,
   workerThreads: Number(process.env.WORKER_THREADS) || os.cpus().length,
   requestTimeout: 2000,
@@ -79,8 +80,8 @@ const stare = require('../../dist').default({
   customScraperOpts: {
     core: "starejs-html"
   },
+  personalSERPs: mySERPs,
   // personalMetrics: myMetrics,
-  // personalSERPs: mySERPs,
   solr: {
     baseUrl: process.env.SOLR_ENDPOINT || 'http://localhost:8983',
     core: 'starejs',
@@ -95,36 +96,36 @@ const stare = require('../../dist').default({
 app.get('/stare/:engine', (request, response) => {
   const engine = request.params.engine;
   const { query, metrics, startIndex, numberOfResults } = request.query;
-  
+
   debugInstance(`Handling arguments: %O`, request.query);
-  
+
   if (!query || !metrics || !numberOfResults) {
-    response.status(400).json({ 
-      error: 'Missing required parameters: query, metrics, numberOfResults' 
+    response.status(400).json({
+      error: 'Missing required parameters: query, metrics, numberOfResults'
     });
     return;
   }
 
   const metricList = (metrics as string).split(",");
-  
-  console.time('Time taken');
-  
-  stare(
-    engine, 
-    query as string, 
-    Number(numberOfResults), 
-    metricList, 
+
+
+
+  stareInstance.search(
+    engine,
+    query as string,
+    Number(numberOfResults),
+    metricList,
     Number(startIndex || 0)
   )
     .then((result: StareResponse) => {
-      console.timeEnd('Time taken');
+
       response.status(200).json(result);
     })
     .catch((err: Error) => {
       debugInstance(err);
-      response.status(500).json({ 
-        error: 'Internal server error', 
-        message: err.message 
+      response.status(500).json({
+        error: 'Internal server error',
+        message: err.message
       });
     });
 });
@@ -135,34 +136,36 @@ app.get("/health", (request, response) => {
 
 app.get('/ip', (request, response) => {
   response.send({
-    ip: request.ip, 
-    host: request.host, 
-    hostname: request.hostname, 
+    ip: request.ip,
+    host: request.host,
+    hostname: request.hostname,
     headers: request.headers
   });
 });
 
 const PORT = process.env.SERVER_PORT || 3000;
 
-app.listen(PORT, () => {
-  debugInstance("WorkingDir %s", process.cwd());
-  
-  figlet.text('StArE.js-server', (err: Error | null, data?: string) => {
-    if (err) {
-      debugInstance('Error generating figlet:', err);
-      return;
-    }
-    if (data) {
-      debugInstance(data);
-    }
+if (isMainThread) {
+  app.listen(PORT, () => {
+    debugInstance("WorkingDir %s", process.cwd());
+
+    figlet.text('StArE.js-server', (err: Error | null, data?: string) => {
+      if (err) {
+        debugInstance('Error generating figlet:', err);
+        return;
+      }
+      if (data) {
+        debugInstance(data);
+      }
+    });
+
+    debugInstance(`Using Request Limits %O`, {
+      windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 30000,
+      max: Number(process.env.RATE_LIMIT_MAX_PER_WINDOW) || 1,
+    });
+
+    console.log(`App running on [http://localhost:${PORT}]!`);
   });
-  
-  debugInstance(`Using Request Limits %O`, {
-    windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 30000,
-    max: Number(process.env.RATE_LIMIT_MAX_PER_WINDOW) || 1,
-  });
-  
-  console.log(`App running on [http://localhost:${PORT}]!`);
-});
+}
 
 export default app;

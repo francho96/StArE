@@ -7,7 +7,7 @@ const debugInstance = debug('app');
 
 const args = process.argv.slice(2);
 
-const stare = require('../../lib').default({
+const stareInstance = require('../../lib').default({
   engines: ['solr'],
   enableMultiCore: (process.env.ENABLE_MULTI_CORE === 'true'),
   workerThreads: Number(process.env.WORKER_THREADS) || os.cpus().length,
@@ -49,7 +49,7 @@ interface StareResponse {
  */
 const app = async (metrics: string[], engine: string, query: string, numberOfResults: string): Promise<void> => {
   try {
-    const result: StareResponse = await stare(engine, query, Number(numberOfResults), metrics);
+    const result: StareResponse = await stareInstance.search(engine, query, Number(numberOfResults), metrics);
     debugInstance("%O", result);
   } catch (err) {
     debugInstance("Error en app: " + err);

@@ -1,13 +1,14 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   data: null,
   loading: false,
   query: null,
+  visualType: 0,
 };
 
 export const resultSlice = createSlice({
-  name: "result",
+  name: 'result',
   initialState,
   reducers: {
     setLoading: (state, action) => {
@@ -22,6 +23,9 @@ export const resultSlice = createSlice({
     clearResult: (state) => {
       state.data = null;
     },
+    setVisualType: (state, action) => {
+      state.visualType = action.payload;
+    },
     resetResult: () => initialState,
   },
 });
@@ -30,6 +34,7 @@ export const {
   setLoading,
   setQuery,
   setResultData,
+  setVisualType,
   clearResult,
   resetResult,
 } = resultSlice.actions;
