@@ -1,10 +1,8 @@
 # StArE.js (StArE Core)
 
-![npm](https://img.shields.io/npm/v/@francho96/stare)
-![license](https://img.shields.io/npm/l/@francho96/stare)
+![npm](https://img.shields.io/npm/v/@interaction-lab/stare)
+![license](https://img.shields.io/npm/l/@interaction-lab/stare)
 ![typescript](https://img.shields.io/badge/Language-TypeScript-blue)
-[![Build Status](https://travis-ci.com/francho96/StArE.svg?branch=master)](https://github.com/francho96/StArE)
-[![Coverage Status](https://coveralls.io/repos/github/francho96/StArE/badge.svg?branch=master)](https://coveralls.io/github/francho96/StArE?branch=master)
 
 **StArE.js** (Search Engine Results Evaluator) is an open-source research-oriented library designed to facilitate the creation of alternative visualizations and evaluations of Search Engine Results Pages (SERP). 
 
@@ -18,14 +16,14 @@ It provides a modular and extensible processing pipeline capable of:
 ## 🚀 Installation
 
 ```bash
-npm install @francho96/stare
+npm install @interaction-lab/stare
 ```
 
 ## 🛠️ Quick Start
 
 ### TypeScript
 ```typescript
-import stare from '@francho96/stare';
+import stare from '@interaction-lab/stare';
 
 const stareInstance = stare({
   engines: ['google', 'ecosia'],
@@ -43,7 +41,7 @@ stareInstance.search('google', 'open source', 10, ['ranking', 'language'])
 ### JavaScript (ESM or CommonJS)
 ```javascript
 // CommonJS
-const stare = require('@francho96/stare').default;
+const stare = require('@interaction-lab/stare').default;
 
 const stareInstance = stare({ /* options */ });
 // ... use stareInstance.search

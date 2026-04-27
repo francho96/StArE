@@ -1,5 +1,5 @@
 {
-  "name": "@francho96/stare",
+  "name": "@interaction-lab/stare",
   "version": "1.0.0",
   "description": "Node.js SERP visualization server with TypeScript",
   "keywords": [
@@ -9,6 +9,9 @@
     "search",
     "metrics"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -19,7 +22,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "start": "node lib/index.ts",
+    "start": "node dist/index.js",
     "dev": "ts-node lib/stare.ts",
     "test": "jest",
     "clean": "rimraf dist",
