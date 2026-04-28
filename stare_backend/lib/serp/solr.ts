@@ -30,7 +30,7 @@ try {
   }
 } catch (e) {
   debugInstance("Solr options not correctly configurated");
-  process.exit((e as NodeJS.ErrnoException).code);
+  throw new Error("Solr options not correctly configurated");
 }
 
 const BASE_URL = global.stareOptions.solr.baseUrl;

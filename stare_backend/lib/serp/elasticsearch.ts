@@ -19,7 +19,7 @@ try {
   }
 } catch (e) {
   debugInstance("ElasticSearch options not correctly configurated");
-  process.exit((e as NodeJS.ErrnoException).code);
+  throw new Error("ElasticSearch options not correctly configurated");
 }
 
 const BASE_URL = global.stareOptions.elasticsearch.baseUrl;

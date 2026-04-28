@@ -19,6 +19,18 @@ It provides a modular and extensible processing pipeline capable of:
 npm install @interaction-lab/stare
 ```
 
+## 📦 Search Engine Dependencies
+
+Some search engines require additional peer dependencies to be installed in your project to work correctly. These are loaded dynamically from your project's `node_modules`.
+
+| Engine | Required Packages |
+| :--- | :--- |
+| **Google** | `npm install googleapis` |
+| **Bing** | `npm install ms-rest-azure azure-cognitiveservices-websearch` |
+
+> [!IMPORTANT]
+> If these packages are missing, the library will throw an Error when attempting to use the corresponding search engine. Ensure you have them installed if you plan to use these engines.
+
 ## 🛠️ Quick Start
 
 ### TypeScript
@@ -83,16 +95,16 @@ Initializes the StArE instance.
 | `personalSERPs` | `object` | Map of custom SERP handler paths. |
 | `personalMetrics` | `object` | Map of custom metric module paths. |
 
-### `instance.search(engine, query, nResults, metrics, startIndex)`
+### `async instance.search(engine, query, nResults, metrics, startIndex)`
 Executes the full pipeline (SERP query + Scraping + Parsing + Metrics).
 
-### `instance.scraper(engine, query, nResults, startIndex)`
+### `async instance.scraper(engine, query, nResults, startIndex)`
 Only performs the SERP query and fetches the HTML of the results.
 
 ### `instance.parser(serpResponse)`
 Extracts body text from a previously scraped `serpResponse`.
 
-### `instance.metrics(serpResponse, metricsList)`
+### `async instance.metrics(serpResponse, metricsList)`
 Calculates metrics on a `serpResponse`.
 
 ---

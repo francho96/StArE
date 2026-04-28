@@ -1,6 +1,6 @@
 {
   "name": "@interaction-lab/stare",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node.js SERP visualization server with TypeScript",
   "keywords": [
     "server",

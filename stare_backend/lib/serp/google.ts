@@ -11,7 +11,7 @@ try {
   require.resolve(`${process.cwd()}/node_modules/googleapis`);
 } catch (e) {
   debugInstance("Package 'googleapis' is not installed");
-  process.exit((e as NodeJS.ErrnoException).code);
+  throw new Error("Package 'googleapis' is not installed. Please install it in your project.");
 }
 
 const { google } = require(`${process.cwd()}/node_modules/googleapis`);

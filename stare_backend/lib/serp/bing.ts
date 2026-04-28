@@ -11,7 +11,7 @@ try {
   require.resolve(`${process.cwd()}/node_modules/azure-cognitiveservices-websearch`);
 } catch (e) {
   debugInstance("Package 'ms-rest-azure' or 'azure-cognitiveservices-websearch' is not installed");
-  process.exit((e as NodeJS.ErrnoException).code);
+  throw new Error("Packages 'ms-rest-azure' and 'azure-cognitiveservices-websearch' are not installed. Please install them in your project.");
 }
 
 const CognitiveServicesCredentials = require(`${process.cwd()}/node_modules/ms-rest-azure`).CognitiveServicesCredentials;
