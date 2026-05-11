@@ -6,6 +6,8 @@ import cors from 'cors';
 import figlet from 'figlet';
 import rateLimit from 'express-rate-limit';
 import os from 'os';
+import path from 'path';
+import fs from 'fs';
 
 const debugInstance = debug('simple-express-server');
 const app = express();
@@ -71,7 +73,13 @@ const mySERPs = {
   mock: './my-serps/mock'
 };
 
-const stareInstance = require('../../dist').default({
+let corePath = path.resolve(__dirname, '../../dist');
+
+if (!fs.existsSync(corePath)) {
+  corePath = path.resolve(__dirname, '../../../dist');
+}
+
+const stareInstance = require(corePath).default({
   engines: ['google', 'solr', 'mock'],
   enableMultiCore: (process.env.ENABLE_MULTI_CORE === 'true') || false,
   workerThreads: Number(process.env.WORKER_THREADS) || os.cpus().length,
