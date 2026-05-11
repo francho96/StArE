@@ -65,12 +65,11 @@ app.use(limiter);
 app.options('*', cors());
 
 const myMetrics = {
-  a: './my-metrics/a',
-  b: './my-metrics/b'
+  a: path.resolve(__dirname, '../my-metrics/a'),
+  b: path.resolve(__dirname, '../my-metrics/b')
 };
-
 const mySERPs = {
-  mock: './my-serps/mock'
+  mock: path.resolve(__dirname, '../my-serps/mock')
 };
 
 let corePath = path.resolve(__dirname, '../../dist');
@@ -84,7 +83,7 @@ const stareInstance = require(corePath).default({
   enableMultiCore: (process.env.ENABLE_MULTI_CORE === 'true') || false,
   workerThreads: Number(process.env.WORKER_THREADS) || os.cpus().length,
   requestTimeout: 2000,
-  customScraper: "./my-custom-scraper",
+  customScraper: path.resolve(__dirname, "../my-custom-scraper"),
   customScraperOpts: {
     core: "starejs-html"
   },
